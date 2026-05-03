@@ -17,7 +17,7 @@ function App() {
     setHasil(null);
     
     try {
-      const response = await axios.post('https://hafii-smishing-backend.hf.space/predict', {
+      const response = await axios.post(import.meta.env.VITE_API_URL, {
         teks: pesan,
         angka: [0, 0, 0, 0, 0, 0, 0] // Default 7 parameter sesuai info.md
       });
