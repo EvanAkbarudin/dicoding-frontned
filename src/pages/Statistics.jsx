@@ -99,36 +99,36 @@ function Statistics() {
   return (
     <main className="max-w-3xl mx-auto px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">📊 Statistik</h1>
-        <p className="text-gray-500 mt-1">Ringkasan hasil pengecekan pesan kamu</p>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">📊 Statistik</h1>
+        <p className="text-gray-500 dark:text-gray-400 mt-1">Ringkasan hasil pengecekan pesan kamu</p>
       </div>
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 text-center">
-          <div className="text-4xl font-bold text-blue-600">{stats.total}</div>
-          <div className="text-base text-gray-500 mt-1">Total Dicek</div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5 text-center transition-colors">
+          <div className="text-4xl font-bold text-blue-600 dark:text-blue-400">{stats.total}</div>
+          <div className="text-base text-gray-500 dark:text-gray-400 mt-1">Total Dicek</div>
         </div>
-        <div className="bg-white rounded-2xl border border-green-200 shadow-sm p-5 text-center">
-          <div className="text-4xl font-bold text-green-600">{stats.safe}</div>
-          <div className="text-base text-gray-500 mt-1">✅ Aman</div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-green-200 dark:border-green-700 shadow-sm p-5 text-center transition-colors">
+          <div className="text-4xl font-bold text-green-600 dark:text-green-400">{stats.safe}</div>
+          <div className="text-base text-gray-500 dark:text-gray-400 mt-1">✅ Aman</div>
         </div>
-        <div className="bg-white rounded-2xl border border-red-200 shadow-sm p-5 text-center">
-          <div className="text-4xl font-bold text-red-600">{stats.phishing}</div>
-          <div className="text-base text-gray-500 mt-1">🚨 Berbahaya</div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-red-200 dark:border-red-700 shadow-sm p-5 text-center transition-colors">
+          <div className="text-4xl font-bold text-red-600 dark:text-red-400">{stats.phishing}</div>
+          <div className="text-base text-gray-500 dark:text-gray-400 mt-1">🚨 Berbahaya</div>
         </div>
       </div>
 
       {stats.total === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-gray-400 dark:text-gray-500">
           <div className="text-6xl mb-4">📈</div>
           <p className="text-xl">Belum ada data statistik</p>
           <p className="text-base mt-2">Mulai cek pesan SMS kamu di halaman utama</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 transition-colors">
+            <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">
               Perbandingan Aman vs Berbahaya
             </h2>
             <div className="max-w-xs mx-auto">
@@ -136,8 +136,8 @@ function Statistics() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 transition-colors">
+            <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">
               Aktivitas 7 Hari Terakhir
             </h2>
             <Bar data={barData} options={barOptions} />

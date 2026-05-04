@@ -66,14 +66,14 @@ function Home() {
     <main className="max-w-3xl mx-auto px-4 py-10">
       {/* Hero */}
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 text-sm font-medium px-4 py-2 rounded-full mb-4">
+        <div className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium px-4 py-2 rounded-full mb-4">
           🤖 Didukung AI · Deteksi Real-time
         </div>
-        <h1 className="text-4xl font-bold text-gray-800 mb-4 leading-tight">
+        <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4 leading-tight">
           Jangan sampai<br />
-          <span className="text-blue-600">tertipu pesan palsu.</span>
+          <span className="text-blue-600 dark:text-blue-400">tertipu pesan palsu.</span>
         </h1>
-        <p className="text-lg text-gray-500 max-w-xl mx-auto">
+        <p className="text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
           Paste isi pesan SMS yang kamu terima, dan sistem kami akan menganalisis
           apakah pesan tersebut aman atau mencurigakan dalam hitungan detik.
         </p>
@@ -88,10 +88,10 @@ function Home() {
         ].map((stat) => (
           <div
             key={stat.label}
-            className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 text-center"
+            className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 text-center transition-colors"
           >
-            <div className="text-3xl font-bold text-blue-600">{stat.value}</div>
-            <div className="text-sm text-gray-500 mt-1">{stat.label}</div>
+            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stat.value}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">{stat.label}</div>
           </div>
         ))}
       </div>
@@ -108,11 +108,11 @@ function Home() {
 
       {/* Error */}
       {error && (
-        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-300 rounded-xl text-yellow-800 text-base">
+        <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-xl text-yellow-800 dark:text-yellow-300 text-base">
           ⚠️ {error}
           <button
             onClick={handleReset}
-            className="ml-3 underline text-yellow-700 hover:text-yellow-900"
+            className="ml-3 underline text-yellow-700 dark:text-yellow-400 hover:text-yellow-900 dark:hover:text-yellow-200"
           >
             Coba lagi
           </button>
