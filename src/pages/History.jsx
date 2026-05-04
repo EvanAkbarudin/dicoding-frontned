@@ -5,34 +5,55 @@ function History() {
   const [history, setHistory] = useState([])
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem('sms_history') || '[]')
-    setHistory(data)
+    try {
+      const data = localStorage.getItem('sms_history')
+      const parsedData = data ? JSON.parse(data) : []
+      setHistory(parsedData)
+    } catch (error) {
+      console.error('Error loading history:', error)
+      setHistory([])
+      toast.error('Gagal memuat riwayat')
+    }
   }, [])
 
   const handleClearAll = () => {
     if (window.confirm('Hapus semua riwayat?')) {
-      localStorage.removeItem('sms_history')
-      setHistory([])
-      toast.success('Semua riwayat dihapus')
+      try {
+        localStorage.removeItem('sms_history')
+        setHistory([])
+        toast.success('Semua riwayat dihapus')
+      } catch (error) {
+        console.error('Error clearing history:', error)
+        toast.error('Gagal menghapus riwayat')
+      }
     }
   }
 
   const handleDeleteOne = (id) => {
-    const updated = history.filter((item) => item.id !== id)
-    localStorage.setItem('sms_history', JSON.stringify(updated))
-    setHistory(updated)
-    toast.success('Riwayat dihapus')
+    try {
+      const updated = history.filter((item) => item.id !== id)
+      localStorage.setItem('sms_history', JSON.stringify(updated))
+      setHistory(updated)
+      toast.success('Riwayat dihapus')
+    } catch (error) {
+      console.error('Error deleting history item:', error)
+      toast.error('Gagal menghapus riwayat')
+    }
   }
 
   const formatDate = (iso) => {
-    const date = new Date(iso)
-    return date.toLocaleString('id-ID', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+    try {
+      const date = new Date(iso)
+      return date.toLocaleString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    } catch (error) {
+      return 'Tanggal tidak valid'
+    }
   }
 
   return (

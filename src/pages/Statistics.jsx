@@ -10,46 +10,58 @@ import {
   Title,
 } from 'chart.js'
 import { Doughnut, Bar } from 'react-chartjs-2'
+import { useTheme } from '../context/ThemeContext'
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title)
 
 function Statistics() {
+  const { isDark } = useTheme()
   const [stats, setStats] = useState({ total: 0, safe: 0, phishing: 0 })
   const [weeklyData, setWeeklyData] = useState({ safe: [], phishing: [], labels: [] })
 
-  // Baca ulang setiap kali halaman di-focus (misal balik dari Home)
   useEffect(() => {
     const loadStats = () => {
-      const history = JSON.parse(localStorage.getItem('sms_history') || '[]')
-      const safe = history.filter((h) => h.status === 'safe').length
-      const phishing = history.filter((h) => h.status === 'phishing').length
-      setStats({ total: history.length, safe, phishing })
+      try {
+        const historyData = localStorage.getItem('sms_history')
+        const history = historyData ? JSON.parse(historyData) : []
+        
+        const safe = history.filter((h) => h.status === 'safe').length
+        const phishing = history.filter((h) => h.status === 'phishing').length
+        setStats({ total: history.length, safe, phishing })
 
-      const days = []
-      const safePerDay = []
-      const phishingPerDay = []
+        const days = []
+        const safePerDay = []
+        const phishingPerDay = []
 
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date()
-        date.setDate(date.getDate() - i)
-        const label = date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' })
-        days.push(label)
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date()
+          date.setDate(date.getDate() - i)
+          const label = date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' })
+          days.push(label)
 
-        const dayStr = date.toDateString()
-        const dayItems = history.filter((h) => new Date(h.date).toDateString() === dayStr)
-        safePerDay.push(dayItems.filter((h) => h.status === 'safe').length)
-        phishingPerDay.push(dayItems.filter((h) => h.status === 'phishing').length)
+          const dayStr = date.toDateString()
+          const dayItems = history.filter((h) => new Date(h.date).toDateString() === dayStr)
+          safePerDay.push(dayItems.filter((h) => h.status === 'safe').length)
+          phishingPerDay.push(dayItems.filter((h) => h.status === 'phishing').length)
+        }
+
+        setWeeklyData({ labels: days, safe: safePerDay, phishing: phishingPerDay })
+      } catch (error) {
+        console.error('Error loading statistics:', error)
+        setStats({ total: 0, safe: 0, phishing: 0 })
+        setWeeklyData({ safe: [], phishing: [], labels: [] })
       }
-
-      setWeeklyData({ labels: days, safe: safePerDay, phishing: phishingPerDay })
     }
 
     loadStats()
 
-    // Refresh saat tab/window kembali aktif
     window.addEventListener('focus', loadStats)
     return () => window.removeEventListener('focus', loadStats)
   }, [])
+
+  // Dynamic colors based on theme
+  const textColor = isDark ? '#d1d5db' : '#374151'
+  const gridColor = isDark ? '#374151' : '#e5e7eb'
 
   const doughnutData = {
     labels: ['Aman', 'Berbahaya'],
@@ -57,10 +69,21 @@ function Statistics() {
       {
         data: [stats.safe, stats.phishing],
         backgroundColor: ['#22c55e', '#ef4444'],
-        borderColor: ['#16a34a', '#dc2626'],
+        borderColor: isDark ? '#1f2937' : '#ffffff',
         borderWidth: 2,
       },
     ],
+  }
+
+  const doughnutOptions = {
+    plugins: {
+      legend: {
+        labels: {
+          color: textColor,
+          font: { size: 14 },
+        },
+      },
+    },
   }
 
   const barData = {
@@ -69,7 +92,7 @@ function Statistics() {
       {
         label: 'Aman',
         data: weeklyData.safe,
-        backgroundColor: '#86efac',
+        backgroundColor: isDark ? '#4ade80' : '#86efac',
         borderColor: '#22c55e',
         borderWidth: 1,
         borderRadius: 6,
@@ -77,7 +100,7 @@ function Statistics() {
       {
         label: 'Berbahaya',
         data: weeklyData.phishing,
-        backgroundColor: '#fca5a5',
+        backgroundColor: isDark ? '#f87171' : '#fca5a5',
         borderColor: '#ef4444',
         borderWidth: 1,
         borderRadius: 6,
@@ -88,11 +111,25 @@ function Statistics() {
   const barOptions = {
     responsive: true,
     plugins: {
-      legend: { position: 'top' },
+      legend: {
+        position: 'top',
+        labels: {
+          color: textColor,
+          font: { size: 14 },
+        },
+      },
       title: { display: false },
     },
     scales: {
-      y: { beginAtZero: true, ticks: { stepSize: 1 } },
+      x: {
+        ticks: { color: textColor },
+        grid: { color: gridColor },
+      },
+      y: {
+        beginAtZero: true,
+        ticks: { stepSize: 1, color: textColor },
+        grid: { color: gridColor },
+      },
     },
   }
 
@@ -132,7 +169,7 @@ function Statistics() {
               Perbandingan Aman vs Berbahaya
             </h2>
             <div className="max-w-xs mx-auto">
-              <Doughnut data={doughnutData} />
+              <Doughnut data={doughnutData} options={doughnutOptions} />
             </div>
           </div>
 

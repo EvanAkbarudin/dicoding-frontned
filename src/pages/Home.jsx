@@ -27,17 +27,24 @@ function Home() {
 
       const data = response.data
 
-      // Simpan ke localStorage
-      const history = JSON.parse(localStorage.getItem('sms_history') || '[]')
-      const newEntry = {
-        id: Date.now(),
-        message: message.trim().slice(0, 100),
-        status: data.status,
-        reason: data.reason,
-        date: new Date().toISOString(),
+      // Simpan ke localStorage dengan error handling
+      try {
+        const historyData = localStorage.getItem('sms_history')
+        const history = historyData ? JSON.parse(historyData) : []
+        
+        const newEntry = {
+          id: Date.now(),
+          message: message.trim().slice(0, 100),
+          status: data.status,
+          reason: data.reason,
+          date: new Date().toISOString(),
+        }
+        history.unshift(newEntry)
+        localStorage.setItem('sms_history', JSON.stringify(history.slice(0, 50)))
+      } catch (storageError) {
+        console.error('Error saving to localStorage:', storageError)
+        // Tetap lanjut meskipun gagal save ke localStorage
       }
-      history.unshift(newEntry)
-      localStorage.setItem('sms_history', JSON.stringify(history.slice(0, 50)))
 
       setResult(data)
 
@@ -48,9 +55,10 @@ function Home() {
         toast.success('✅ Pesan ini terlihat aman', { duration: 3000 })
       }
     } catch (err) {
-      setError('Gagal menghubungi server. Pastikan backend sudah berjalan.')
+      const errorMessage = err.response?.data?.message || 'Gagal menghubungi server. Pastikan backend sudah berjalan.'
+      setError(errorMessage)
       toast.error('Gagal terhubung ke server')
-      console.error(err)
+      console.error('API Error:', err)
     } finally {
       setLoading(false)
     }

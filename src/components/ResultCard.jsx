@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types'
+
 function ResultCard({ result, onReset }) {
   if (!result) return null
 
@@ -69,6 +71,14 @@ function ResultCard({ result, onReset }) {
       </button>
     </div>
   )
+}
+
+ResultCard.propTypes = {
+  result: PropTypes.shape({
+    status: PropTypes.oneOf(['safe', 'phishing']).isRequired,
+    reason: PropTypes.string.isRequired,
+  }),
+  onReset: PropTypes.func.isRequired,
 }
 
 export default ResultCard

@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types'
+
 const MIN_LENGTH = 10
 
 function TextInput({ value, onChange, onSubmit, loading }) {
@@ -51,6 +53,13 @@ function TextInput({ value, onChange, onSubmit, loading }) {
       </button>
     </div>
   )
+}
+
+TextInput.propTypes = {
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
 }
 
 export default TextInput
