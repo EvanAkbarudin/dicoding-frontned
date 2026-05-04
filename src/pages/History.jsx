@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import toast from 'react-hot-toast'
 
 function History() {
   const [history, setHistory] = useState([])
@@ -8,11 +9,19 @@ function History() {
     setHistory(data)
   }, [])
 
-  const handleClear = () => {
+  const handleClearAll = () => {
     if (window.confirm('Hapus semua riwayat?')) {
       localStorage.removeItem('sms_history')
       setHistory([])
+      toast.success('Semua riwayat dihapus')
     }
+  }
+
+  const handleDeleteOne = (id) => {
+    const updated = history.filter((item) => item.id !== id)
+    localStorage.setItem('sms_history', JSON.stringify(updated))
+    setHistory(updated)
+    toast.success('Riwayat dihapus')
   }
 
   const formatDate = (iso) => {
@@ -31,11 +40,13 @@ function History() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">📋 Riwayat Pengecekan</h1>
-          <p className="text-gray-500 mt-1">Semua pesan yang pernah kamu cek</p>
+          <p className="text-gray-500 mt-1">
+            {history.length > 0 ? `${history.length} pesan pernah dicek` : 'Semua pesan yang pernah kamu cek'}
+          </p>
         </div>
         {history.length > 0 && (
           <button
-            onClick={handleClear}
+            onClick={handleClearAll}
             className="px-4 py-2 text-sm text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
           >
             Hapus Semua
@@ -67,25 +78,30 @@ function History() {
                     </span>
                     <div className="min-w-0">
                       <p className="text-gray-800 text-base font-medium truncate">
-                        {item.message}
-                        {item.message.length >= 100 ? '...' : ''}
+                        {item.message}{item.message.length >= 100 ? '...' : ''}
                       </p>
                       <p className="text-gray-500 text-sm mt-1 line-clamp-2">
                         {item.reason}
                       </p>
+                      <p className="text-xs text-gray-400 mt-2">{formatDate(item.date)}</p>
                     </div>
                   </div>
-                  <div className="flex-shrink-0 text-right">
+
+                  <div className="flex flex-col items-end gap-2 flex-shrink-0">
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                        isPhishing
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-green-100 text-green-700'
+                        isPhishing ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
                       }`}
                     >
                       {isPhishing ? 'Berbahaya' : 'Aman'}
                     </span>
-                    <p className="text-xs text-gray-400 mt-2">{formatDate(item.date)}</p>
+                    <button
+                      onClick={() => handleDeleteOne(item.id)}
+                      className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                      aria-label="Hapus riwayat ini"
+                    >
+                      🗑 Hapus
+                    </button>
                   </div>
                 </div>
               </div>

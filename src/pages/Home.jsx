@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 import TextInput from '../components/TextInput'
 import ResultCard from '../components/ResultCard'
+import LoadingSkeleton from '../components/LoadingSkeleton'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -12,7 +14,7 @@ function Home() {
   const [error, setError] = useState(null)
 
   const handleCheck = async () => {
-    if (!message.trim()) return
+    if (message.trim().length < 10) return
 
     setLoading(true)
     setError(null)
@@ -35,16 +37,29 @@ function Home() {
         date: new Date().toISOString(),
       }
       history.unshift(newEntry)
-      // Simpan max 50 riwayat
       localStorage.setItem('sms_history', JSON.stringify(history.slice(0, 50)))
 
       setResult(data)
+
+      // Toast notifikasi
+      if (data.status === 'phishing') {
+        toast.error('⚠️ Pesan ini terdeteksi BERBAHAYA!', { duration: 4000 })
+      } else {
+        toast.success('✅ Pesan ini terlihat aman', { duration: 3000 })
+      }
     } catch (err) {
       setError('Gagal menghubungi server. Pastikan backend sudah berjalan.')
+      toast.error('Gagal terhubung ke server')
       console.error(err)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleReset = () => {
+    setMessage('')
+    setResult(null)
+    setError(null)
   }
 
   return (
@@ -81,23 +96,34 @@ function Home() {
         ))}
       </div>
 
-      {/* Input */}
-      <TextInput
-        value={message}
-        onChange={setMessage}
-        onSubmit={handleCheck}
-        loading={loading}
-      />
+      {/* Input — sembunyikan saat hasil sudah muncul */}
+      {!result && (
+        <TextInput
+          value={message}
+          onChange={setMessage}
+          onSubmit={handleCheck}
+          loading={loading}
+        />
+      )}
 
       {/* Error */}
       {error && (
         <div className="mt-4 p-4 bg-yellow-50 border border-yellow-300 rounded-xl text-yellow-800 text-base">
           ⚠️ {error}
+          <button
+            onClick={handleReset}
+            className="ml-3 underline text-yellow-700 hover:text-yellow-900"
+          >
+            Coba lagi
+          </button>
         </div>
       )}
 
+      {/* Loading skeleton */}
+      {loading && <LoadingSkeleton />}
+
       {/* Result */}
-      <ResultCard result={result} />
+      {result && <ResultCard result={result} onReset={handleReset} />}
     </main>
   )
 }

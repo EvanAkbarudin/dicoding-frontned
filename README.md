@@ -1,16 +1,75 @@
-# React + Vite
+# 🛡️ Safe Message
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplikasi web untuk mengecek apakah pesan SMS yang diterima merupakan phishing (penipuan) atau aman. Dibangun dengan React + Tailwind CSS, terintegrasi dengan backend Express JS melalui REST API.
 
-Currently, two official plugins are available:
+## Fitur
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 🔍 Cek SMS — analisis pesan dengan AI
+- 📋 Riwayat — lihat & hapus riwayat pengecekan (tersimpan di localStorage)
+- 📊 Statistik — chart perbandingan aman vs berbahaya
+- 📱 Responsive — tampilan mobile-friendly
+- 🔔 Toast notification — feedback langsung setelah analisis
 
-## React Compiler
+## Struktur Project
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+  components/
+    Navbar.jsx         → navigasi utama (responsive)
+    Footer.jsx         → footer halaman
+    TextInput.jsx      → textarea input SMS + validasi
+    ResultCard.jsx     → hasil analisis
+    LoadingSkeleton.jsx → placeholder saat loading
+  pages/
+    Home.jsx           → halaman utama
+    History.jsx        → riwayat pengecekan
+    Statistics.jsx     → chart statistik
+    NotFound.jsx       → halaman 404
+  App.jsx
+  main.jsx
+```
 
-## Expanding the ESLint configuration
+## Setup & Jalankan
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 1. Install dependencies
+```bash
+npm install
+```
+
+### 2. Konfigurasi API
+Buat file `.env` di root project:
+```
+VITE_API_URL=http://localhost:3000
+```
+
+### 3. Jalankan dev server
+```bash
+npm run dev
+```
+
+Buka browser ke `http://localhost:5173`
+
+> Pastikan backend Express JS sudah berjalan di port 3000.
+
+## API yang Digunakan
+
+**POST** `/api/check-message`
+
+Request:
+```json
+{ "message": "Isi pesan SMS" }
+```
+
+Response:
+```json
+{ "status": "safe" | "phishing", "reason": "Penjelasan dari AI" }
+```
+
+## Tech Stack
+
+- React 19
+- Tailwind CSS v4
+- React Router DOM
+- Axios
+- Chart.js + react-chartjs-2
+- react-hot-toast

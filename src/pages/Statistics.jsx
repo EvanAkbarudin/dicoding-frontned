@@ -17,32 +17,38 @@ function Statistics() {
   const [stats, setStats] = useState({ total: 0, safe: 0, phishing: 0 })
   const [weeklyData, setWeeklyData] = useState({ safe: [], phishing: [], labels: [] })
 
+  // Baca ulang setiap kali halaman di-focus (misal balik dari Home)
   useEffect(() => {
-    const history = JSON.parse(localStorage.getItem('sms_history') || '[]')
-    const safe = history.filter((h) => h.status === 'safe').length
-    const phishing = history.filter((h) => h.status === 'phishing').length
-    setStats({ total: history.length, safe, phishing })
+    const loadStats = () => {
+      const history = JSON.parse(localStorage.getItem('sms_history') || '[]')
+      const safe = history.filter((h) => h.status === 'safe').length
+      const phishing = history.filter((h) => h.status === 'phishing').length
+      setStats({ total: history.length, safe, phishing })
 
-    // Data 7 hari terakhir
-    const days = []
-    const safePerDay = []
-    const phishingPerDay = []
+      const days = []
+      const safePerDay = []
+      const phishingPerDay = []
 
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date()
-      date.setDate(date.getDate() - i)
-      const label = date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' })
-      days.push(label)
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date()
+        date.setDate(date.getDate() - i)
+        const label = date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' })
+        days.push(label)
 
-      const dayStr = date.toDateString()
-      const dayItems = history.filter(
-        (h) => new Date(h.date).toDateString() === dayStr
-      )
-      safePerDay.push(dayItems.filter((h) => h.status === 'safe').length)
-      phishingPerDay.push(dayItems.filter((h) => h.status === 'phishing').length)
+        const dayStr = date.toDateString()
+        const dayItems = history.filter((h) => new Date(h.date).toDateString() === dayStr)
+        safePerDay.push(dayItems.filter((h) => h.status === 'safe').length)
+        phishingPerDay.push(dayItems.filter((h) => h.status === 'phishing').length)
+      }
+
+      setWeeklyData({ labels: days, safe: safePerDay, phishing: phishingPerDay })
     }
 
-    setWeeklyData({ labels: days, safe: safePerDay, phishing: phishingPerDay })
+    loadStats()
+
+    // Refresh saat tab/window kembali aktif
+    window.addEventListener('focus', loadStats)
+    return () => window.removeEventListener('focus', loadStats)
   }, [])
 
   const doughnutData = {
@@ -86,10 +92,7 @@ function Statistics() {
       title: { display: false },
     },
     scales: {
-      y: {
-        beginAtZero: true,
-        ticks: { stepSize: 1 },
-      },
+      y: { beginAtZero: true, ticks: { stepSize: 1 } },
     },
   }
 
@@ -124,7 +127,6 @@ function Statistics() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
-          {/* Doughnut */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-700 mb-4">
               Perbandingan Aman vs Berbahaya
@@ -134,7 +136,6 @@ function Statistics() {
             </div>
           </div>
 
-          {/* Bar */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-700 mb-4">
               Aktivitas 7 Hari Terakhir
