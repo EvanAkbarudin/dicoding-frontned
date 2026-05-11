@@ -1,188 +1,110 @@
-import { useState, useEffect } from 'react'
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-} from 'chart.js'
-import { Doughnut, Bar } from 'react-chartjs-2'
-import { useTheme } from '../context/ThemeContext'
+import { useEffect } from "react";
+import { useHistory } from "../context/HistoryContext";
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title)
+function drawDonut(safe, phishing) {
+  const canvas = document.getElementById("sm-donut");
+  if (!canvas) return;
 
-function Statistics() {
-  const { isDark } = useTheme()
-  const [stats, setStats] = useState({ total: 0, safe: 0, phishing: 0 })
-  const [weeklyData, setWeeklyData] = useState({ safe: [], phishing: [], labels: [] })
+  const ctx = canvas.getContext("2d");
+  const total = safe + phishing;
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const r = 90;
+  const innerR = 55;
+  const safeAngle = (safe / total) * Math.PI * 2;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const segments = [
+    { start: -Math.PI / 2, end: -Math.PI / 2 + safeAngle, color: "#2ecc71" },
+    { start: -Math.PI / 2 + safeAngle, end: -Math.PI / 2 + Math.PI * 2, color: "#e74c3c" },
+  ];
+
+  segments.forEach((seg) => {
+    if (Math.abs(seg.end - seg.start) < 0.001) return;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, seg.start, seg.end);
+    ctx.closePath();
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+  });
+
+  // Inner hole
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerR, 0, Math.PI * 2);
+  ctx.fillStyle = "#12121a";
+  ctx.fill();
+
+  // Center text
+  ctx.fillStyle = "#f0f0f8";
+  ctx.font = "bold 24px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(total, cx, cy - 8);
+
+  ctx.font = "12px sans-serif";
+  ctx.fillStyle = "#6b6b80";
+  ctx.fillText("total dicek", cx, cy + 14);
+}
+
+export default function Statistics() {
+  const { totalCount, safeCount, phishingCount, safePercent } = useHistory();
 
   useEffect(() => {
-    const loadStats = () => {
-      try {
-        const historyData = localStorage.getItem('sms_history')
-        const history = historyData ? JSON.parse(historyData) : []
-        
-        const safe = history.filter((h) => h.status === 'safe').length
-        const phishing = history.filter((h) => h.status === 'phishing').length
-        setStats({ total: history.length, safe, phishing })
+    if (totalCount > 0) drawDonut(safeCount, phishingCount);
+  }, [safeCount, phishingCount, totalCount]);
 
-        const days = []
-        const safePerDay = []
-        const phishingPerDay = []
-
-        for (let i = 6; i >= 0; i--) {
-          const date = new Date()
-          date.setDate(date.getDate() - i)
-          const label = date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' })
-          days.push(label)
-
-          const dayStr = date.toDateString()
-          const dayItems = history.filter((h) => new Date(h.date).toDateString() === dayStr)
-          safePerDay.push(dayItems.filter((h) => h.status === 'safe').length)
-          phishingPerDay.push(dayItems.filter((h) => h.status === 'phishing').length)
-        }
-
-        setWeeklyData({ labels: days, safe: safePerDay, phishing: phishingPerDay })
-      } catch (error) {
-        console.error('Error loading statistics:', error)
-        setStats({ total: 0, safe: 0, phishing: 0 })
-        setWeeklyData({ safe: [], phishing: [], labels: [] })
-      }
-    }
-
-    loadStats()
-
-    window.addEventListener('focus', loadStats)
-    return () => window.removeEventListener('focus', loadStats)
-  }, [])
-
-  // Dynamic colors based on theme
-  const textColor = isDark ? '#d1d5db' : '#374151'
-  const gridColor = isDark ? '#374151' : '#e5e7eb'
-
-  const doughnutData = {
-    labels: ['Aman', 'Berbahaya'],
-    datasets: [
-      {
-        data: [stats.safe, stats.phishing],
-        backgroundColor: ['#22c55e', '#ef4444'],
-        borderColor: isDark ? '#1f2937' : '#ffffff',
-        borderWidth: 2,
-      },
-    ],
-  }
-
-  const doughnutOptions = {
-    plugins: {
-      legend: {
-        labels: {
-          color: textColor,
-          font: { size: 14 },
-        },
-      },
-    },
-  }
-
-  const barData = {
-    labels: weeklyData.labels,
-    datasets: [
-      {
-        label: 'Aman',
-        data: weeklyData.safe,
-        backgroundColor: isDark ? '#4ade80' : '#86efac',
-        borderColor: '#22c55e',
-        borderWidth: 1,
-        borderRadius: 6,
-      },
-      {
-        label: 'Berbahaya',
-        data: weeklyData.phishing,
-        backgroundColor: isDark ? '#f87171' : '#fca5a5',
-        borderColor: '#ef4444',
-        borderWidth: 1,
-        borderRadius: 6,
-      },
-    ],
-  }
-
-  const barOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-        labels: {
-          color: textColor,
-          font: { size: 14 },
-        },
-      },
-      title: { display: false },
-    },
-    scales: {
-      x: {
-        ticks: { color: textColor },
-        grid: { color: gridColor },
-      },
-      y: {
-        beginAtZero: true,
-        ticks: { stepSize: 1, color: textColor },
-        grid: { color: gridColor },
-      },
-    },
-  }
+  const summaryRows = [
+    { label: "Total SMS dicek", value: totalCount, color: "text-[#e8ff47]" },
+    { label: "Pesan aman", value: safeCount, color: "text-[#2ecc71]" },
+    { label: "Pesan phishing", value: phishingCount, color: "text-[#e74c3c]" },
+    { label: "Tingkat keamanan", value: totalCount ? `${safePercent}%` : "—", color: "text-[#47c8ff]" },
+  ];
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">📊 Statistik</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Ringkasan hasil pengecekan pesan kamu</p>
-      </div>
+    <div className="max-w-4xl mx-auto mt-10 mb-20 px-10">
+      <h2 className="font-display font-bold text-xl text-white mb-8">Statistik Pengecekan</h2>
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5 text-center transition-colors">
-          <div className="text-4xl font-bold text-blue-600 dark:text-blue-400">{stats.total}</div>
-          <div className="text-base text-gray-500 dark:text-gray-400 mt-1">Total Dicek</div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-green-200 dark:border-green-700 shadow-sm p-5 text-center transition-colors">
-          <div className="text-4xl font-bold text-green-600 dark:text-green-400">{stats.safe}</div>
-          <div className="text-base text-gray-500 dark:text-gray-400 mt-1">✅ Aman</div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-red-200 dark:border-red-700 shadow-sm p-5 text-center transition-colors">
-          <div className="text-4xl font-bold text-red-600 dark:text-red-400">{stats.phishing}</div>
-          <div className="text-base text-gray-500 dark:text-gray-400 mt-1">🚨 Berbahaya</div>
-        </div>
-      </div>
-
-      {stats.total === 0 ? (
-        <div className="text-center py-20 text-gray-400 dark:text-gray-500">
-          <div className="text-6xl mb-4">📈</div>
-          <p className="text-xl">Belum ada data statistik</p>
-          <p className="text-base mt-2">Mulai cek pesan SMS kamu di halaman utama</p>
-        </div>
+      {totalCount === 0 ? (
+        <p className="text-center py-16 text-white/30 text-sm font-sans">Belum ada data statistik. Cek beberapa SMS terlebih dahulu!</p>
       ) : (
-        <div className="grid grid-cols-1 gap-6">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 transition-colors">
-            <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">
-              Perbandingan Aman vs Berbahaya
-            </h2>
-            <div className="max-w-xs mx-auto">
-              <Doughnut data={doughnutData} options={doughnutOptions} />
+        <div className="grid grid-cols-2 gap-6">
+          {/* ── Donut chart ── */}
+          <div className="bg-[#12121a] border border-white/10 rounded-2xl p-8 flex flex-col items-center">
+            <p className="text-[10px] font-semibold tracking-widest uppercase text-white/40 font-sans mb-6">Distribusi Hasil</p>
+            <canvas id="sm-donut" width="200" height="200" />
+            <div className="flex gap-6 mt-5">
+              {[
+                { label: "Aman", color: "bg-[#2ecc71]", count: safeCount },
+                { label: "Phishing", color: "bg-[#e74c3c]", count: phishingCount },
+              ].map((l) => (
+                <div key={l.label} className="flex items-center gap-2">
+                  <span className={`w-2.5 h-2.5 rounded-full ${l.color}`} />
+                  <span className="text-xs text-white/40 font-sans">
+                    {l.label}: <strong className="text-white font-medium">{l.count}</strong>
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 transition-colors">
-            <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">
-              Aktivitas 7 Hari Terakhir
-            </h2>
-            <Bar data={barData} options={barOptions} />
+          {/* ── Summary table ── */}
+          <div className="bg-[#12121a] border border-white/10 rounded-2xl p-8">
+            <p className="text-[10px] font-semibold tracking-widest uppercase text-white/40 font-sans mb-6">Ringkasan</p>
+            {summaryRows.map((row, i) => (
+              <div
+                key={row.label}
+                className={`flex items-center justify-between py-3.5
+                  ${i < summaryRows.length - 1 ? "border-b border-white/10" : ""}`}
+              >
+                <span className="text-sm text-white/40 font-sans">{row.label}</span>
+                <span className={`font-display font-bold text-2xl ${row.color}`}>{row.value}</span>
+              </div>
+            ))}
           </div>
         </div>
       )}
-    </main>
-  )
+    </div>
+  );
 }
-
-export default Statistics

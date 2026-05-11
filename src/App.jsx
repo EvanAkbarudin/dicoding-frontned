@@ -1,65 +1,28 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
-import { ThemeProvider, useTheme } from './context/ThemeContext'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
-import Home from './pages/Home'
-import History from './pages/History'
-import Statistics from './pages/Statistics'
-import NotFound from './pages/NotFound'
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import History from "./pages/History";
+import Statistics from "./pages/Statistics";
+import NotFound from "./pages/NotFound";
+import Education from "./pages/Education";
 
-function AppContent() {
-  const { isDark } = useTheme()
-
+export default function App() {
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors">
-        <Navbar />
-        <div className="flex-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/statistics" element={<Statistics />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
-        <Footer />
-      </div>
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          style: {
-            fontSize: '16px',
-            borderRadius: '12px',
-            padding: '14px 18px',
-            background: isDark ? '#1f2937' : '#ffffff',
-            color: isDark ? '#f3f4f6' : '#1f2937',
-          },
-          duration: 3000,
-          success: {
-            iconTheme: {
-              primary: isDark ? '#4ade80' : '#22c55e',
-              secondary: isDark ? '#1f2937' : '#ffffff',
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: isDark ? '#f87171' : '#ef4444',
-              secondary: isDark ? '#1f2937' : '#ffffff',
-            },
-          },
-        }}
-      />
-    </BrowserRouter>
-  )
-}
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#0a0a0f] text-[#0a0a0f] dark:text-white font-sans transition-colors duration-300">
+      <Navbar />
 
-function App() {
-  return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
-  )
-}
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/statistics" element={<Statistics />} />
+          <Route path="/education" element={<Education />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
 
-export default App
+      <Footer />
+    </div>
+  );
+}

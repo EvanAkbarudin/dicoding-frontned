@@ -1,16 +1,8 @@
-function Footer() {
+export default function Footer() {
   return (
-    <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-10 transition-colors">
-      <div className="max-w-3xl mx-auto px-4 py-6 text-center">
-        <p className="text-gray-500 dark:text-gray-400 text-sm">
-          © 2026 <span className="font-semibold text-blue-600 dark:text-blue-400">Safe Message</span> — Melindungi pengguna Indonesia dari penipuan SMS
-        </p>
-        <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">
-          Dibangun dengan TensorFlow · FastAPI · React
-        </p>
-      </div>
+    <footer className="border-t border-gray-300 dark:border-white/10 px-10 py-8 flex items-center justify-between max-w-7xl mx-auto w-full bg-white dark:bg-[#0a0a0f] transition-colors duration-300">
+      <p className="text-xs text-gray-600 dark:text-white/30 font-sans">© 2026 Safe Massage — Melindungi masyarakat Indonesia dari phishing SMS</p>
+      <p className="text-xs text-gray-600 dark:text-white/30 font-sans">Dibangun dengan Express JS · React · Axios</p>
     </footer>
-  )
+  );
 }
-
-export default Footer

@@ -1,139 +1,166 @@
-import { useState, useEffect } from 'react'
-import toast from 'react-hot-toast'
+import { useState } from 'react'
+import { useHistory } from '../context/HistoryContext'
+import { timeAgo } from '../data/storage'
+import { generateSinglePDF } from '../data/generatepdf'
 
-function History() {
-  const [history, setHistory] = useState([])
+export default function History() {
+  const { history, removeAll, totalCount, safeCount, phishingCount } = useHistory()
+  const [downloadingId, setDownloadingId] = useState(null)
 
-  useEffect(() => {
+  async function handleDownload(item) {
+    setDownloadingId(item.id)
     try {
-      const data = localStorage.getItem('sms_history')
-      const parsedData = data ? JSON.parse(data) : []
-      setHistory(parsedData)
-    } catch (error) {
-      console.error('Error loading history:', error)
-      setHistory([])
-      toast.error('Gagal memuat riwayat')
-    }
-  }, [])
-
-  const handleClearAll = () => {
-    if (window.confirm('Hapus semua riwayat?')) {
-      try {
-        localStorage.removeItem('sms_history')
-        setHistory([])
-        toast.success('Semua riwayat dihapus')
-      } catch (error) {
-        console.error('Error clearing history:', error)
-        toast.error('Gagal menghapus riwayat')
-      }
+      await generateSinglePDF(item)
+    } finally {
+      setDownloadingId(null)
     }
   }
 
-  const handleDeleteOne = (id) => {
-    try {
-      const updated = history.filter((item) => item.id !== id)
-      localStorage.setItem('sms_history', JSON.stringify(updated))
-      setHistory(updated)
-      toast.success('Riwayat dihapus')
-    } catch (error) {
-      console.error('Error deleting history item:', error)
-      toast.error('Gagal menghapus riwayat')
-    }
-  }
-
-  const formatDate = (iso) => {
-    try {
-      const date = new Date(iso)
-      return date.toLocaleString('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    } catch (error) {
-      return 'Tanggal tidak valid'
-    }
-  }
+  const statCards = [
+    { num: totalCount, label: 'Total dicek', numColor: 'text-white', glowColor: 'bg-[#e8ff47]' },
+    { num: phishingCount, label: 'Terdeteksi phishing', numColor: 'text-[#e74c3c]', glowColor: 'bg-[#e74c3c]' },
+    { num: safeCount, label: 'Terdeteksi aman', numColor: 'text-[#2ecc71]', glowColor: 'bg-[#2ecc71]' },
+  ]
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-10">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">📋 Riwayat Pengecekan</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            {history.length > 0 ? `${history.length} pesan pernah dicek` : 'Semua pesan yang pernah kamu cek'}
-          </p>
-        </div>
+    <div className="max-w-4xl mx-auto mt-10 mb-20 px-10">
+
+      {/* ── Stat cards ── */}
+      <div className="grid grid-cols-3 gap-3 mb-10">
+        {statCards.map((s) => (
+          <div
+            key={s.label}
+            className="relative bg-[#12121a] border border-white/10 rounded-2xl p-6 overflow-hidden"
+          >
+            <div className={`font-display font-extrabold text-4xl leading-none mb-1.5 ${s.numColor}`}>
+              {s.num}
+            </div>
+            <div className="text-xs text-white/40 font-sans">{s.label}</div>
+            <div className={`absolute -top-5 -right-5 w-20 h-20 rounded-full opacity-[0.06] ${s.glowColor}`} />
+          </div>
+        ))}
+      </div>
+
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="font-display font-bold text-xl text-white">
+          Riwayat Pengecekan
+        </h2>
         {history.length > 0 && (
           <button
-            onClick={handleClearAll}
-            className="px-4 py-2 text-sm text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+            onClick={removeAll}
+            className="px-3.5 py-1.5 rounded-lg border border-[#e74c3c]/30 text-[#e74c3c]
+                       text-xs font-sans bg-transparent cursor-pointer
+                       hover:bg-[#e74c3c]/10 transition-colors duration-200"
           >
-            Hapus Semua
+            Hapus semua
           </button>
         )}
       </div>
 
+      {/* ── List ── */}
       {history.length === 0 ? (
-        <div className="text-center py-20 text-gray-400 dark:text-gray-500">
-          <div className="text-6xl mb-4">📭</div>
-          <p className="text-xl">Belum ada riwayat pengecekan</p>
-          <p className="text-base mt-2">Cek pesan SMS kamu di halaman utama</p>
+        <div className="text-center py-20">
+          <div className="text-4xl mb-4">📭</div>
+          <p className="text-white/30 text-sm font-sans">
+            Belum ada riwayat pengecekan. Coba cek SMS pertamamu!
+          </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-3">
           {history.map((item) => {
-            const isPhishing = item.status === 'phishing'
+            const isSafe = item.status === 'safe'
+            const isLoading = downloadingId === item.id
+            const statusColor = isSafe ? 'text-[#2ecc71]' : 'text-[#e74c3c]'
+            const iconBg = isSafe ? 'bg-[#2ecc71]/15' : 'bg-[#e74c3c]/15'
+            const borderHover = isSafe ? 'hover:border-[#2ecc71]/20' : 'hover:border-[#e74c3c]/20'
+
             return (
               <div
                 key={item.id}
-                className={`bg-white dark:bg-gray-800 rounded-2xl border-2 p-5 shadow-sm transition-colors ${
-                  isPhishing ? 'border-red-200 dark:border-red-800' : 'border-green-200 dark:border-green-800'
-                }`}
+                className={`bg-[#12121a] border border-white/10 rounded-2xl p-5
+                            transition-all duration-150 ${borderHover}`}
               >
+                {/* Row atas: icon + teks + badge */}
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <span className="text-2xl flex-shrink-0">
-                      {isPhishing ? '🚨' : '✅'}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-gray-800 dark:text-gray-100 text-base font-medium truncate">
-                        {item.message}{item.message.length >= 100 ? '...' : ''}
+
+                  {/* Kiri: icon + teks */}
+                  <div className="flex items-start gap-3.5 flex-1 min-w-0">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${iconBg}`}>
+                      {isSafe ? '✅' : '🚨'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white/80 mb-1 font-sans truncate">
+                        {item.message}
                       </p>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 line-clamp-2">
+                      <p className="text-xs text-white/30 font-sans leading-relaxed line-clamp-2">
                         {item.reason}
                       </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">{formatDate(item.date)}</p>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                        isPhishing 
-                          ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' 
-                          : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                      }`}
-                    >
-                      {isPhishing ? 'Berbahaya' : 'Aman'}
+                  {/* Kanan: status + waktu */}
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                    <span className={`font-display font-bold text-sm ${statusColor}`}>
+                      {isSafe ? 'AMAN' : 'BAHAYA'}
                     </span>
-                    <button
-                      onClick={() => handleDeleteOne(item.id)}
-                      className="text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                      aria-label="Hapus riwayat ini"
-                    >
-                      🗑 Hapus
-                    </button>
+                    <span className="text-[10px] text-white/25 font-sans">
+                      {timeAgo(item.timestamp)}
+                    </span>
                   </div>
+                </div>
+
+                {/* Row bawah: meta + tombol unduh */}
+                <div className="flex items-center justify-between mt-4 pt-3.5 border-t border-white/[0.06]">
+
+                  {/* Meta */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-white/20 font-sans">
+                      ID: SM-{item.id}
+                    </span>
+                    <span className="text-white/10">·</span>
+                    <span className="text-[10px] text-white/20 font-sans">
+                      {new Date(item.timestamp).toLocaleDateString('id-ID', {
+                        day: '2-digit', month: 'short', year: 'numeric',
+                      })}
+                    </span>
+                  </div>
+
+                  {/* Tombol unduh PDF */}
+                  <button
+                    onClick={() => handleDownload(item)}
+                    disabled={isLoading}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium font-sans
+                                transition-all duration-200
+                                ${isLoading
+                        ? 'bg-[#e8ff47]/20 text-[#e8ff47]/50 cursor-not-allowed'
+                        : 'bg-[#e8ff47]/10 text-[#e8ff47] border border-[#e8ff47]/20 hover:bg-[#e8ff47]/20 hover:border-[#e8ff47]/40 active:scale-95'
+                      }`}
+                  >
+                    {isLoading ? (
+                      <>
+                        <span className="w-3 h-3 rounded-full border border-[#e8ff47]/30 border-t-[#e8ff47] animate-spin" />
+                        Menyiapkan...
+                      </>
+                    ) : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+                          viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Unduh PDF
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             )
           })}
         </div>
       )}
-    </main>
+    </div>
   )
 }
-
-export default History

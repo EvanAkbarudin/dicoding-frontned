@@ -1,31 +1,38 @@
 function LoadingSkeleton() {
   return (
-    <div className="mt-6 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm animate-pulse transition-colors">
+    <div className="mt-6 relative rounded-2xl border border-white/10 bg-[#12121a] p-8 overflow-hidden animate-pulse">
+      {/* Top gradient line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#e8ff47]/20 to-transparent" />
+
       {/* Header */}
-      <div className="flex items-start gap-4 mb-5">
-        <div className="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-full flex-shrink-0" />
+      <div className="flex items-start gap-4 mb-6">
+        <div className="w-12 h-12 rounded-xl bg-white/5 shrink-0" />
         <div className="flex-1">
-          <div className="h-7 bg-gray-200 dark:bg-gray-700 rounded-lg w-3/4 mb-2" />
-          <div className="h-4 bg-gray-100 dark:bg-gray-600 rounded-lg w-1/2" />
+          <div className="h-6 bg-white/5 rounded-lg w-3/4 mb-2.5" />
+          <div className="h-3.5 bg-white/4 rounded-lg w-1/2" />
         </div>
       </div>
 
       {/* Badge */}
-      <div className="h-9 bg-gray-200 dark:bg-gray-700 rounded-full w-36 mb-5" />
+      <div className="h-8 bg-white/5 rounded-full w-32 mb-6" />
 
-      <hr className="mb-5 border-gray-200 dark:border-gray-700" />
+      {/* Divider */}
+      <div className="h-px bg-white/5 mb-6" />
 
-      {/* Reason */}
-      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-40 mb-3" />
-      <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700 space-y-2">
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full" />
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/6" />
+      {/* Reason label */}
+      <div className="h-3 bg-white/5 rounded w-32 mb-3" />
+
+      {/* Reason box */}
+      <div className="bg-[#1a1a26] border border-white/5 rounded-xl p-4 space-y-2.5">
+        <div className="h-3.5 bg-white/5 rounded w-full" />
+        <div className="h-3.5 bg-white/5 rounded w-5/6" />
+        <div className="h-3.5 bg-white/5 rounded w-4/6" />
       </div>
 
-      <div className="mt-6 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl" />
+      {/* Bottom bar */}
+      <div className="mt-6 h-11 bg-white/4 rounded-xl" />
     </div>
-  )
+  );
 }
 
-export default LoadingSkeleton
+export default LoadingSkeleton;

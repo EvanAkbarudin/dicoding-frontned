@@ -1,84 +1,95 @@
-import PropTypes from 'prop-types'
+export default function ResultCard({ result, onBack }) {
+  const isSafe = result.status === "safe";
 
-function ResultCard({ result, onReset }) {
-  if (!result) return null
-
-  const isPhishing = result.status === 'phishing'
+  const tips = isSafe
+    ? ["Pesan ini tampak aman, namun tetap waspada terhadap link mencurigakan.", "Jangan pernah memberikan PIN, OTP, atau password kepada siapapun.", "Konfirmasi kebenaran pesan langsung kepada pengirim resmi."]
+    : ["Jangan klik link apapun yang ada di pesan ini.", "Jangan berikan data pribadi seperti nomor KTP, rekening, atau OTP.", "Laporkan pesan ini ke pihak berwenang atau operator seluler Anda.", "Blokir nomor pengirim pesan tersebut."];
 
   return (
-    <div
-      className={`mt-6 rounded-2xl border-2 p-6 shadow-sm transition-colors ${
-        isPhishing
-          ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800'
-          : 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-800'
-      }`}
-    >
-      {/* Header */}
-      <div className="flex items-start gap-4 mb-5">
-        <span className="text-5xl">{isPhishing ? '🚨' : '✅'}</span>
-        <div>
-          <h3 className={`text-2xl font-bold ${isPhishing ? 'text-red-700 dark:text-red-400' : 'text-green-700 dark:text-green-400'}`}>
-            {isPhishing ? 'Pesan Mencurigakan!' : 'Pesan Terlihat Aman'}
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300 text-base mt-1">
-            {isPhishing
-              ? 'Pesan ini terdeteksi mengandung pola penipuan'
-              : 'Tidak terdeteksi pola penipuan yang signifikan'}
-          </p>
-        </div>
-      </div>
-
-      {/* Status badge */}
-      <div
-        className={`inline-block px-4 py-2 rounded-full text-base font-semibold mb-5 ${
-          isPhishing
-            ? 'bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200'
-            : 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
-        }`}
+    <div className="max-w-4xl mx-auto mb-20 px-10 animate-[fadeUp_0.5s_ease_both]">
+      {/* Back button */}
+      <button
+        onClick={onBack}
+        className="mb-5 px-4 py-2 rounded-lg border border-white/10 text-white/40
+                   text-xs font-sans bg-transparent cursor-pointer
+                   hover:text-white/70 transition-colors duration-200"
       >
-        Status: {isPhishing ? '⚠️ BERBAHAYA' : '✅ AMAN'}
-      </div>
+        ← Cek SMS lain
+      </button>
 
-      <hr className={`mb-5 ${isPhishing ? 'border-red-200 dark:border-red-800' : 'border-green-200 dark:border-green-800'}`} />
+      <div
+        className={`relative bg-[#12121a] rounded-2xl p-8 overflow-hidden border
+          ${isSafe ? "border-[#2ecc71]/30" : "border-[#e74c3c]/30"}`}
+      >
+        {/* Top gradient line */}
+        <div
+          className={`absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent to-transparent
+            ${isSafe ? "via-[#2ecc71]/30" : "via-[#e74c3c]/30"}`}
+        />
 
-      {/* Reason */}
-      <div>
-        <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">🤖 Penjelasan dari AI</h4>
-        <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-          {result.reason}
-        </p>
-      </div>
+        {/* Verdict row */}
+        <div className="flex items-start justify-between mb-7">
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl
+                ${isSafe ? "bg-[#2ecc71]/15" : "bg-[#e74c3c]/15"}`}
+            >
+              {isSafe ? "✅" : "⚠️"}
+            </div>
+            <div>
+              <h2
+                className={`font-display font-bold text-xl
+                  ${isSafe ? "text-[#2ecc71]" : "text-[#e74c3c]"}`}
+              >
+                {isSafe ? "Pesan Terlihat Aman" : "Pesan Mencurigakan"}
+              </h2>
+              <p className="text-xs text-white/40 mt-0.5 font-sans">{isSafe ? "Tidak terdeteksi pola phishing yang signifikan" : "Terdeteksi pola phishing pada pesan ini"}</p>
+            </div>
+          </div>
 
-      {/* Tips phishing */}
-      {isPhishing && (
-        <div className="mt-5 bg-red-100 dark:bg-red-900/30 rounded-xl p-4">
-          <h4 className="text-base font-semibold text-red-800 dark:text-red-300 mb-2">⚠️ Yang harus dilakukan:</h4>
-          <ul className="list-disc list-inside text-red-700 dark:text-red-300 text-base space-y-1">
-            <li>Jangan klik link apapun dalam pesan ini</li>
-            <li>Jangan berikan data pribadi atau kode OTP</li>
-            <li>Jangan transfer uang dengan alasan apapun</li>
-            <li>Laporkan ke pihak berwenang jika perlu</li>
+          <div
+            className={`font-display font-extrabold text-2xl px-4 py-2 rounded-xl
+              ${isSafe ? "text-[#2ecc71] bg-[#2ecc71]/12" : "text-[#e74c3c] bg-[#e74c3c]/12"}`}
+          >
+            {isSafe ? "AMAN" : "BAHAYA"}
+          </div>
+        </div>
+
+        {/* Risk meter */}
+        <div className="mb-6">
+          <div className="flex justify-between text-xs text-white/40 font-sans mb-2">
+            <span>Skor Risiko</span>
+            <span className={`font-medium ${isSafe ? "text-[#2ecc71]" : "text-[#e74c3c]"}`}>{isSafe ? "RENDAH — 15/100" : "TINGGI — 85/100"}</span>
+          </div>
+          <div className="h-2 rounded-full bg-[#1a1a26] overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-1000
+                ${isSafe ? "w-[15%] bg-linear-to-r from-[#27ae60] to-[#2ecc71]" : "w-[85%] bg-linear-to-r from-[#f39c12] to-[#e74c3c]"}`}
+            />
+          </div>
+        </div>
+
+        {/* Reason */}
+        <div className="mb-6">
+          <p className="text-[10px] font-semibold tracking-widest uppercase text-white/40 font-sans mb-3">Alasan Analisis</p>
+          <div className="bg-[#1a1a26] border border-white/10 rounded-xl px-5 py-4">
+            <p className="text-sm text-white/80 leading-relaxed font-sans">{result.reason}</p>
+          </div>
+        </div>
+
+        {/* Tips */}
+        <div className="bg-[#1a1a26] border border-white/10 rounded-xl px-5 py-4">
+          <p className="text-xs font-medium text-[#47c8ff] mb-3 font-sans">🤖 Saran dari AI</p>
+          <ul className="space-y-1.5 list-none">
+            {tips.map((tip, i) => (
+              <li key={i} className="text-xs text-white/40 leading-relaxed pl-4 relative font-sans">
+                <span className="absolute left-0 top-0.5 text-[#47c8ff] text-[10px]">→</span>
+                {tip}
+              </li>
+            ))}
           </ul>
         </div>
-      )}
-
-      {/* Tombol cek lagi */}
-      <button
-        onClick={onReset}
-        className="mt-6 w-full py-3 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-lg font-semibold rounded-xl transition-colors"
-      >
-        🔄 Cek Pesan Lain
-      </button>
+      </div>
     </div>
-  )
+  );
 }
-
-ResultCard.propTypes = {
-  result: PropTypes.shape({
-    status: PropTypes.oneOf(['safe', 'phishing']).isRequired,
-    reason: PropTypes.string.isRequired,
-  }),
-  onReset: PropTypes.func.isRequired,
-}
-
-export default ResultCard

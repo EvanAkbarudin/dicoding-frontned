@@ -1,65 +1,100 @@
-import PropTypes from 'prop-types'
+import { useState } from 'react'
+import { useHistory } from '../context/HistoryContext'
+import { checkMessage } from '../data/api'
 
-const MIN_LENGTH = 10
+export default function TextInput({ onResult }) {
+  const [text, setText] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const { addEntry } = useHistory()
 
-function TextInput({ value, onChange, onSubmit, loading }) {
-  const trimmed = value.trim()
-  const tooShort = trimmed.length > 0 && trimmed.length < MIN_LENGTH
-  const isDisabled = loading || trimmed.length < MIN_LENGTH
+  async function handleCheck() {
+    if (!text.trim()) {
+      setError('Masukkan pesan SMS terlebih dahulu.')
+      return
+    }
+    setError('')
+    setLoading(true)
+
+    try {
+      const data = await checkMessage(text)
+      addEntry(data, text)
+      onResult(data)
+    } catch (err) {
+      console.error(err)
+      setError(
+        'Gagal terhubung ke server. Periksa koneksi internet kamu atau coba beberapa saat lagi.'
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors">
-      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-        Teks Pesan SMS
-      </h2>
+    <div className="max-w-4xl mx-auto mb-20 px-10">
+      <div className="relative bg-[#12121a] border border-white/10 rounded-2xl p-8 overflow-hidden">
 
-      <textarea
-        className={`w-full h-44 p-4 text-lg border-2 rounded-xl resize-none focus:outline-none transition-colors placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 ${
-          tooShort
-            ? 'border-orange-400 dark:border-orange-500 focus:border-orange-500 dark:focus:border-orange-400'
-            : 'border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400'
-        }`}
-        placeholder="Paste atau ketik isi pesan SMS di sini..."
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      />
+        {/* Top gradient line */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#e8ff47]/40 to-transparent" />
 
-      <div className="flex items-center justify-between mt-2 mb-4">
-        <p className="text-sm text-gray-400 dark:text-gray-500">
-          💡 Tips: sertakan seluruh isi pesan termasuk nomor pengirim jika ada
+        {/* Label */}
+        <p className="text-xs font-semibold tracking-widest uppercase text-white/40 mb-4 font-sans">
+          Isi Pesan SMS
         </p>
-        <span className={`text-sm font-medium ${tooShort ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`}>
-          {trimmed.length} karakter
-          {tooShort && ` (min. ${MIN_LENGTH})`}
-        </span>
-      </div>
 
-      <button
-        onClick={onSubmit}
-        disabled={isDisabled}
-        className="w-full py-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed text-white text-xl font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
-      >
-        {loading ? (
-          <>
-            <svg className="animate-spin h-6 w-6 text-white" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-            </svg>
-            Menganalisis...
-          </>
-        ) : (
-          <>Periksa Pesan →</>
+        {/* Textarea */}
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={6}
+          placeholder={`Paste isi SMS yang ingin dicek di sini...\n\nContoh: "Selamat! Anda terpilih mendapatkan hadiah Rp 50.000.000."\n\nSemakin lengkap teks SMS, semakin akurat hasil analisisnya.`}
+          className="w-full bg-[#1a1a26] border border-white/10 rounded-xl px-5 py-4
+                     text-white/90 text-sm font-light font-sans leading-relaxed
+                     placeholder-white/25 outline-none resize-y min-h-[160px]
+                     focus:border-[#e8ff47]/35 transition-colors duration-200"
+        />
+
+        {/* Error */}
+        {error && (
+          <div className="flex items-center gap-2 mt-3 px-4 py-2.5 rounded-lg bg-[#e74c3c]/10 border border-[#e74c3c]/20">
+            <span className="text-[#e74c3c] text-sm">⚠️</span>
+            <p className="text-[#e74c3c] text-xs font-sans">{error}</p>
+          </div>
         )}
-      </button>
+
+        {/* Footer row */}
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-xs text-white/30 font-sans">
+            💡 Tips: sertakan seluruh isi SMS termasuk link dan nomor pengirim
+          </span>
+
+          <button
+            onClick={handleCheck}
+            disabled={loading}
+            className={`flex items-center gap-2.5 px-7 py-3.5 rounded-xl
+                        font-display font-bold text-[#0a0a0f] text-sm
+                        transition-all duration-200
+                        ${loading
+                ? 'bg-[#e8ff47]/50 cursor-not-allowed'
+                : 'bg-[#e8ff47] hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(232,255,71,0.2)] active:translate-y-0'
+              }`}
+          >
+            {loading ? (
+              <>
+                <span className="w-4 h-4 rounded-full border-2 border-[#0a0a0f]/30 border-t-[#0a0a0f] animate-spin" />
+                Menganalisis...
+              </>
+            ) : (
+              <>
+                Cek Pesan
+                <span className="w-5 h-5 rounded-full bg-[#0a0a0f]/20 flex items-center justify-center text-[10px]">
+                  →
+                </span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
-
-TextInput.propTypes = {
-  value: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  loading: PropTypes.bool.isRequired,
-}
-
-export default TextInput
