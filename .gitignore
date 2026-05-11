@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
 
 # Environment variables
 .env
@@ -27,3 +28,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Project docs
+md/
+.vercel
