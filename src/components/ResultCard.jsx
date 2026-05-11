@@ -6,7 +6,7 @@ export default function ResultCard({ result, onBack }) {
     : ["Jangan klik link apapun yang ada di pesan ini.", "Jangan berikan data pribadi seperti nomor KTP, rekening, atau OTP.", "Laporkan pesan ini ke pihak berwenang atau operator seluler Anda.", "Blokir nomor pengirim pesan tersebut."];
 
   return (
-    <div className="max-w-4xl mx-auto mb-20 px-10 animate-[fadeUp_0.5s_ease_both]">
+    <div className="max-w-4xl mx-auto mb-20 mt-20 px-10 animate-[fadeUp_0.5s_ease_both]">
       {/* Back button */}
       <button
         onClick={onBack}

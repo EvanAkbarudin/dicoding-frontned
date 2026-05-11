@@ -1,79 +1,45 @@
+export const BASE_URL = "https://hafi1-smishing-backend.hf.space";
+export const ENDPOINT = "/predict";
+export const FULL_URL = `${BASE_URL}${ENDPOINT}`;
 
-export const BASE_URL = 'https://hafi1-smishing-backend.hf.space'
-
-
-export const ENDPOINT = '/predict'
-
-export const FULL_URL = `${BASE_URL}${ENDPOINT}`
-
-// ─────────────────────────────────────────────────────────────
-// Fungsi utama: kirim SMS ke backend, kembalikan { status, reason }
-//
-// Backend kamu mungkin return format berbeda, misalnya:
-//   { label: 'smishing', confidence: 0.95 }
-//   { result: 'phishing', message: '...' }
-//   { status: 'safe', reason: '...' }
-//
-// Sesuaikan fungsi normalizeResponse() di bawah ini
-// ─────────────────────────────────────────────────────────────
+// Format response backend:
+// {
+//   "prediksi"     : "SMISHING" | "HAM",
+//   "probabilitas" : 0.79,
+//   "status"       : "sukses"
+// }
 
 export async function checkMessage(messageText) {
-    const response = await fetch(FULL_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: messageText }),
-    })
+  const response = await fetch(FULL_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: messageText }),
+  });
 
-    if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`)
-    }
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Server error: ${response.status} — ${errorText}`);
+  }
 
-    const raw = await response.json()
-    return normalizeResponse(raw)
+  const raw = await response.json();
+  return normalizeResponse(raw);
 }
 
-
 function normalizeResponse(raw) {
+  // Validasi: backend harus return status sukses
+  if (raw.status !== "sukses") {
+    throw new Error("Backend mengembalikan status tidak sukses.");
+  }
 
-    if (raw.status && raw.reason) {
-        return { status: raw.status, reason: raw.reason }
-    }
+  const prediksi = (raw.prediksi ?? "").toUpperCase(); // "SMISHING" | "HAM"
+  const probabilitas = raw.probabilitas ?? 0;
+  const persen = Math.round(probabilitas * 100);
+  const isPhishing = prediksi === "SMISHING";
 
-    // Format 2: { label: 'smishing'|'ham', confidence: 0.95 }
-    if (raw.label !== undefined) {
-        const isPhishing = raw.label === 'smishing' || raw.label === 'phishing'
-        return {
-            status: isPhishing ? 'phishing' : 'safe',
-            reason: isPhishing
-                ? `Pesan terdeteksi sebagai penipuan (smishing) dengan tingkat keyakinan ${Math.round((raw.confidence ?? 0) * 100)}%.`
-                : `Pesan terlihat aman dengan tingkat keyakinan ${Math.round((raw.confidence ?? 0) * 100)}%.`,
-        }
-    }
-
-    // Format 3: { result: 'phishing'|'safe', message: '...' }
-    if (raw.result !== undefined) {
-        const isPhishing = raw.result === 'phishing' || raw.result === 'smishing'
-        return {
-            status: isPhishing ? 'phishing' : 'safe',
-            reason: raw.message ?? (isPhishing ? 'Pesan ini mencurigakan.' : 'Pesan ini aman.'),
-        }
-    }
-
-    // Format 4: { prediction: 0|1 }  (0=safe, 1=phishing)
-    if (raw.prediction !== undefined) {
-        const isPhishing = raw.prediction === 1 || raw.prediction === '1'
-        return {
-            status: isPhishing ? 'phishing' : 'safe',
-            reason: isPhishing
-                ? 'Pesan terdeteksi sebagai smishing/phishing oleh model AI.'
-                : 'Pesan tidak terdeteksi sebagai phishing.',
-        }
-    }
-
-    // Fallback: kembalikan raw apa adanya
-    console.warn('Format response tidak dikenali:', raw)
-    return {
-        status: 'safe',
-        reason: JSON.stringify(raw),
-    }
+  return {
+    status: isPhishing ? "phishing" : "safe",
+    reason: isPhishing
+      ? `Pesan ini terdeteksi sebagai SMISHING (penipuan via SMS) oleh model AI dengan tingkat keyakinan ${persen}%. Pesan ini kemungkinan besar merupakan upaya penipuan. Jangan klik link atau ikuti instruksi apapun di dalamnya.`
+      : `Pesan ini terdeteksi sebagai AMAN (bukan smishing) oleh model AI dengan tingkat keyakinan ${persen}%. Tidak ditemukan pola penipuan yang signifikan pada pesan ini.`,
+  };
 }
