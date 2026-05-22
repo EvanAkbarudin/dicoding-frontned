@@ -1,0 +1,14 @@
+
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="64" height="64" rx="18" fill="#E2F331"/>
+
+  <!-- Shield -->
+  <path d="M32 12L48 18V30C48 40 41 48 32 52C23 48 16 40 16 30V18L32 12Z" fill="#111111"/>
+
+  <!-- Chat Bubble -->
+  <path d="M24 26C24 22.6863 26.6863 20 30 20H34C37.3137 20 40 22.6863 40 26C40 29.3137 37.3137 32 34 32H32L28 36V32H30C26.6863 32 24 29.3137 24 26Z" fill="#E2F331"/>
+
+  <!-- Check Icon -->
+  <path d="M28 26L31 29L36 24" stroke="#111111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
