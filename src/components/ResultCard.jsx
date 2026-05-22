@@ -6,19 +6,19 @@ export default function ResultCard({ result, onBack }) {
     : ["Jangan klik link apapun yang ada di pesan ini.", "Jangan berikan data pribadi seperti nomor KTP, rekening, atau OTP.", "Laporkan pesan ini ke pihak berwenang atau operator seluler Anda.", "Blokir nomor pengirim pesan tersebut."];
 
   return (
-    <div className="max-w-4xl mx-auto mb-20 mt-20 px-10 animate-[fadeUp_0.5s_ease_both]">
+    <div data-aos="fade-up" className="max-w-4xl mx-auto mb-20 mt-20 px-10">
       {/* Back button */}
       <button
         onClick={onBack}
-        className="mb-5 px-4 py-2 rounded-lg border border-white/10 text-white/40
+        className="mb-5 px-4 py-2 rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 dark:text-white/40
                    text-xs font-sans bg-transparent cursor-pointer
-                   hover:text-white/70 transition-colors duration-200"
+                   hover:text-gray-800 dark:hover:text-white/70 transition-colors duration-200"
       >
         ← Cek SMS lain
       </button>
 
       <div
-        className={`relative bg-[#12121a] rounded-2xl p-8 overflow-hidden border
+        className={`relative bg-white dark:bg-[#12121a] rounded-2xl p-8 overflow-hidden border shadow-sm dark:shadow-none transition-colors duration-300
           ${isSafe ? "border-[#2ecc71]/30" : "border-[#e74c3c]/30"}`}
       >
         {/* Top gradient line */}
@@ -43,7 +43,7 @@ export default function ResultCard({ result, onBack }) {
               >
                 {isSafe ? "Pesan Terlihat Aman" : "Pesan Mencurigakan"}
               </h2>
-              <p className="text-xs text-white/40 mt-0.5 font-sans">{isSafe ? "Tidak terdeteksi pola phishing yang signifikan" : "Terdeteksi pola phishing pada pesan ini"}</p>
+              <p className="text-xs text-gray-500 dark:text-white/40 mt-0.5 font-sans transition-colors duration-300">{isSafe ? "Tidak terdeteksi pola phishing yang signifikan" : "Terdeteksi pola phishing pada pesan ini"}</p>
             </div>
           </div>
 
@@ -57,11 +57,11 @@ export default function ResultCard({ result, onBack }) {
 
         {/* Risk meter */}
         <div className="mb-6">
-          <div className="flex justify-between text-xs text-white/40 font-sans mb-2">
+          <div className="flex justify-between text-xs text-gray-500 dark:text-white/40 font-sans mb-2 transition-colors duration-300">
             <span>Skor Risiko</span>
             <span className={`font-medium ${isSafe ? "text-[#2ecc71]" : "text-[#e74c3c]"}`}>{isSafe ? "RENDAH — 15/100" : "TINGGI — 85/100"}</span>
           </div>
-          <div className="h-2 rounded-full bg-[#1a1a26] overflow-hidden">
+          <div className="h-2 rounded-full bg-gray-100 dark:bg-[#1a1a26] overflow-hidden transition-colors duration-300">
             <div
               className={`h-full rounded-full transition-all duration-1000
                 ${isSafe ? "w-[15%] bg-linear-to-r from-[#27ae60] to-[#2ecc71]" : "w-[85%] bg-linear-to-r from-[#f39c12] to-[#e74c3c]"}`}
@@ -71,19 +71,19 @@ export default function ResultCard({ result, onBack }) {
 
         {/* Reason */}
         <div className="mb-6">
-          <p className="text-[10px] font-semibold tracking-widest uppercase text-white/40 font-sans mb-3">Alasan Analisis</p>
-          <div className="bg-[#1a1a26] border border-white/10 rounded-xl px-5 py-4">
-            <p className="text-sm text-white/80 leading-relaxed font-sans">{result.reason}</p>
+          <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 dark:text-white/40 font-sans mb-3 transition-colors duration-300">Alasan Analisis</p>
+          <div className="bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-5 py-4 transition-colors duration-300">
+            <p className="text-sm text-slate-700 dark:text-white/80 leading-relaxed font-sans transition-colors duration-300">{result.reason}</p>
           </div>
         </div>
 
         {/* Tips */}
-        <div className="bg-[#1a1a26] border border-white/10 rounded-xl px-5 py-4">
-          <p className="text-xs font-medium text-[#47c8ff] mb-3 font-sans">🤖 Saran dari AI</p>
+        <div className="bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-5 py-4 transition-colors duration-300">
+          <p className="text-xs font-medium text-[#0088cc] dark:text-[#47c8ff] mb-3 font-sans transition-colors duration-300">🤖 Saran dari AI</p>
           <ul className="space-y-1.5 list-none">
             {tips.map((tip, i) => (
-              <li key={i} className="text-xs text-white/40 leading-relaxed pl-4 relative font-sans">
-                <span className="absolute left-0 top-0.5 text-[#47c8ff] text-[10px]">→</span>
+              <li key={i} className="text-xs text-slate-600 dark:text-white/40 leading-relaxed pl-4 relative font-sans transition-colors duration-300">
+                <span className="absolute left-0 top-0.5 text-[#0088cc] dark:text-[#47c8ff] text-[10px] transition-colors duration-300">→</span>
                 {tip}
               </li>
             ))}

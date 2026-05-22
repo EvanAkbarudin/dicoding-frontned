@@ -1,16 +1,22 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
+import { LogOut, User, Users } from "lucide-react";
+import { useState } from "react";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
+  const { user, openAuthModal, logout, login } = useAuth();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const links = [
     { path: "/", label: "Cek SMS" },
     { path: "/history", label: "Riwayat" },
     { path: "/statistics", label: "Statistik" },
     { path: "/education", label: "Edukasi" },
+    { path: "/feedback", label: "Feedback" },
   ];
 
   return (
@@ -59,13 +65,54 @@ export default function Navbar() {
           )}
         </button>
 
-        <button
-          onClick={() => navigate("/")}
-          className="px-5 py-2 rounded-lg bg-[#e8ff47] text-[#0a0a0f] text-sm font-medium font-sans
-                     transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0"
-        >
-          Mulai Gratis
-        </button>
+        {user ? (
+          <div className="relative">
+            <button 
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 transition-colors"
+            >
+              <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold uppercase">
+                {user.name.charAt(0)}
+              </div>
+              <span className="text-sm font-medium text-slate-800 dark:text-white font-sans max-w-[100px] truncate">{user.name}</span>
+            </button>
+
+            {isProfileOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl shadow-lg py-1 z-50 transition-colors duration-300">
+                <div className="px-4 py-2 border-b border-gray-100 dark:border-white/10 mb-1">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{user.name}</p>
+                  <p className="text-xs text-slate-500 dark:text-white/50 truncate">{user.email}</p>
+                </div>
+                <button 
+                  onClick={() => {
+                    login({ name: 'Switch User', email: 'other@example.com' });
+                    setIsProfileOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
+                >
+                  <Users size={16} /> Switch Account
+                </button>
+                <button 
+                  onClick={() => {
+                    logout();
+                    setIsProfileOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-2 transition-colors"
+                >
+                  <LogOut size={16} /> Logout
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <button
+            onClick={openAuthModal}
+            className="px-5 py-2 rounded-lg bg-[#e8ff47] text-[#0a0a0f] text-sm font-medium font-sans
+                       transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0"
+          >
+            Mulai Gratis
+          </button>
+        )}
       </div>
     </nav>
   );

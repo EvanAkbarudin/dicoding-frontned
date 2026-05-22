@@ -1,6 +1,6 @@
-export const BASE_URL = "https://hafi1-smishing-backend.hf.space";
+import api from '../lib/axios';
+
 export const ENDPOINT = "/predict";
-export const FULL_URL = `${BASE_URL}${ENDPOINT}`;
 
 // Format response backend:
 // {
@@ -10,19 +10,15 @@ export const FULL_URL = `${BASE_URL}${ENDPOINT}`;
 // }
 
 export async function checkMessage(messageText) {
-  const response = await fetch(FULL_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: messageText }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Server error: ${response.status} — ${errorText}`);
+  try {
+    const response = await api.post(ENDPOINT, { message: messageText });
+    return normalizeResponse(response.data);
+  } catch (error) {
+    if (error.response) {
+      throw new Error(`Server error: ${error.response.status} — ${error.response.data}`);
+    }
+    throw new Error(`Network error: ${error.message}`);
   }
-
-  const raw = await response.json();
-  return normalizeResponse(raw);
 }
 
 function normalizeResponse(raw) {
