@@ -1,239 +1,450 @@
-// generatePDF.js
-// Menggunakan jsPDF (CDN via import) untuk generate PDF di browser
-// Pastikan sudah install: npm install jspdf
+// generatePDF.js — Safe Message | Simple & Professional Report Design
+// Optimized for users 40+ years old: clean, readable, and print-friendly
 
-import jsPDF from 'jspdf'
+import jsPDF from 'jspdf';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Simple Color Palette ──────────────────────────────────────────────────────
+const COLORS = {
+  white: [255, 255, 255],
+  black: [0, 0, 0],
+  darkGray: [60, 60, 60],
+  mediumGray: [120, 120, 120],
+  lightGray: [200, 200, 200],
+  veryLightGray: [240, 240, 240],
+  safe: [46, 204, 113],
+  danger: [231, 76, 60],
+  safeBg: [240, 255, 245],
+  dangerBg: [255, 245, 245],
+};
+
+// ── Helper Functions ──────────────────────────────────────────────────────────
 
 function formatDate(iso) {
-    return new Date(iso).toLocaleString('id-ID', {
-        day: '2-digit', month: 'long', year: 'numeric',
-        hour: '2-digit', minute: '2-digit',
-    })
+  return new Date(iso).toLocaleString('id-ID', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }
 
-function wrapText(doc, text, x, y, maxWidth, lineHeight) {
-    const lines = doc.splitTextToSize(text, maxWidth)
-    lines.forEach((line) => {
-        doc.text(line, x, y)
-        y += lineHeight
-    })
-    return y
+function setColor(doc, rgb, type = 'text') {
+  if (type === 'text') doc.setTextColor(...rgb);
+  if (type === 'fill') doc.setFillColor(...rgb);
+  if (type === 'draw') doc.setDrawColor(...rgb);
 }
 
-// ── Generate PDF untuk SATU item riwayat ─────────────────────────────────────
+function drawLine(doc, x1, y1, x2, y2, color = COLORS.lightGray, width = 0.5) {
+  doc.setLineWidth(width);
+  setColor(doc, color, 'draw');
+  doc.line(x1, y1, x2, y2);
+}
+
+function drawBox(doc, x, y, w, h, fillColor, borderColor = null) {
+  setColor(doc, fillColor, 'fill');
+  doc.rect(x, y, w, h, 'F');
+
+  if (borderColor) {
+    setColor(doc, borderColor, 'draw');
+    doc.setLineWidth(0.5);
+    doc.rect(x, y, w, h, 'S');
+  }
+}
+
+function wrapText(doc, text, x, y, maxWidth, lineHeight = 7) {
+  const lines = doc.splitTextToSize(String(text || ''), maxWidth);
+
+  lines.forEach((line) => {
+    doc.text(line, x, y);
+    y += lineHeight;
+  });
+
+  return y;
+}
+
+// Auto page break helper
+function ensurePageSpace(doc, currentY, neededSpace, margin = 20) {
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  if (currentY + neededSpace > pageHeight - 30) {
+    doc.addPage();
+    return margin;
+  }
+
+  return currentY;
+}
+
+// ── Main Export Function ──────────────────────────────────────────────────────
 
 export function generateSinglePDF(item) {
-    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
-    const W = doc.internal.pageSize.getWidth()   // 210
-    const H = doc.internal.pageSize.getHeight()  // 297
-    const isSafe = item.status === 'safe'
-    const accent = isSafe ? [46, 204, 113] : [231, 76, 60]   // RGB safe=green danger=red
-    const accentHex = isSafe ? '#2ecc71' : '#e74c3c'
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-    let y = 0  // current Y position
+  const W = 210;
+  const H = 297;
+  const M = 20;
+  const CW = W - M * 2;
 
-    // ── Background hitam ──────────────────────────────────────────────────────
-    doc.setFillColor(10, 10, 15)
-    doc.rect(0, 0, W, H, 'F')
+  const isSafe = item.status === 'safe';
 
-    // ── Header bar ───────────────────────────────────────────────────────────
-    doc.setFillColor(18, 18, 26)
-    doc.rect(0, 0, W, 28, 'F')
+  const statusColor = isSafe ? COLORS.safe : COLORS.danger;
 
-    // Dot logo
-    doc.setFillColor(232, 255, 71)
-    doc.circle(14, 14, 3, 'F')
+  const statusText = isSafe
+    ? 'PESAN AMAN'
+    : 'PESAN BERBAHAYA';
 
-    // App name
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(14)
-    doc.setTextColor(240, 240, 248)
-    doc.text('Safe Massage', 20, 15.5)
+  const statusIcon = isSafe ? '✓' : '✗';
 
-    // Tagline kanan
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(7)
-    doc.setTextColor(107, 107, 128)
-    doc.text('Laporan Analisis SMS Phishing', W - 14, 15.5, { align: 'right' })
+  const riskLevel = isSafe ? 'RENDAH' : 'TINGGI';
 
-    // Garis bawah header
-    doc.setDrawColor(232, 255, 71)
-    doc.setLineWidth(0.5)
-    doc.line(0, 28, W, 28)
+  let y = M;
 
-    y = 44
+  // ── HEADER ────────────────────────────────────────────────────────────────
 
-    // ── Status badge besar ────────────────────────────────────────────────────
-    const badgeW = 60
-    const badgeX = (W - badgeW) / 2
-    doc.setFillColor(...accent)
-    doc.setDrawColor(...accent)
-    roundedRect(doc, badgeX, y, badgeW, 14, 7, 'F')
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(20);
+  setColor(doc, COLORS.black);
 
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(13)
-    doc.setTextColor(10, 10, 15)
-    doc.text(isSafe ? '✓  PESAN AMAN' : '✗  PESAN BERBAHAYA', W / 2, y + 9.5, { align: 'center' })
+  doc.text('Safe Message', M, y);
 
-    y += 22
+  y += 7;
 
-    // ── Sub-status ───────────────────────────────────────────────────────────
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(9)
-    doc.setTextColor(107, 107, 128)
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+
+  setColor(doc, COLORS.mediumGray);
+
+  doc.text('Laporan Analisis Deteksi Phishing SMS', M, y);
+
+  y += 12;
+
+  drawLine(doc, M, y, W - M, y, COLORS.lightGray, 1);
+
+  y += 12;
+
+  // ── STATUS SECTION ────────────────────────────────────────────────────────
+
+  const statusBoxH = 26;
+
+  drawBox(
+    doc,
+    M,
+    y,
+    CW,
+    statusBoxH,
+    COLORS.veryLightGray,
+    statusColor
+  );
+
+  // Status circle
+  setColor(doc, statusColor, 'fill');
+
+  const iconCircleX = M + 12;
+  const iconCircleY = y + statusBoxH / 2;
+
+  doc.circle(iconCircleX, iconCircleY, 8, 'F');
+
+  // Icon centered
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+
+  setColor(doc, COLORS.white);
+
+  doc.text(statusIcon, iconCircleX, iconCircleY + 3, {
+    align: 'center',
+  });
+
+  // Status text
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(18);
+
+  setColor(doc, statusColor);
+
+  doc.text(statusText, M + 28, y + statusBoxH / 2 + 2);
+
+  y += statusBoxH + 14;
+
+  // ── INFORMATION SECTION ───────────────────────────────────────────────────
+
+  y = ensurePageSpace(doc, y, 50);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+
+  setColor(doc, COLORS.black);
+
+  doc.text('INFORMASI LAPORAN', M, y);
+
+  y += 9;
+
+  const infoData = [
+    ['Tanggal Pemeriksaan', formatDate(item.timestamp)],
+    ['Nomor ID Laporan', `SM-${item.id}`],
+    ['Status Hasil', statusText],
+    ['Tingkat Risiko', riskLevel],
+  ];
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+
+  infoData.forEach(([label, value]) => {
+    setColor(doc, COLORS.mediumGray);
+
+    doc.text(label, M, y);
+
+    if (label === 'Tingkat Risiko') {
+      setColor(
+        doc,
+        riskLevel === 'RENDAH'
+          ? COLORS.safe
+          : COLORS.danger
+      );
+    } else {
+      setColor(doc, COLORS.black);
+    }
+
+    doc.text(': ' + value, M + 55, y);
+
+    y += 8;
+  });
+
+  y += 8;
+
+  // ── MESSAGE SECTION ───────────────────────────────────────────────────────
+
+  y = ensurePageSpace(doc, y, 80);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+
+  setColor(doc, COLORS.black);
+
+  doc.text('ISI PESAN SMS', M, y);
+
+  y += 9;
+
+  const messagePadding = 8;
+
+  const messageStartY = y;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+
+  setColor(doc, COLORS.black);
+
+  const messageEndY = wrapText(
+    doc,
+    item.message,
+    M + messagePadding,
+    y + messagePadding,
+    CW - messagePadding * 2,
+    7
+  );
+
+  const messageBoxHeight =
+    messageEndY - messageStartY + messagePadding;
+
+  drawBox(
+    doc,
+    M,
+    messageStartY,
+    CW,
+    messageBoxHeight,
+    isSafe ? COLORS.safeBg : COLORS.dangerBg,
+    statusColor
+  );
+
+  // redraw text
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+
+  setColor(doc, COLORS.black);
+
+  wrapText(
+    doc,
+    item.message,
+    M + messagePadding,
+    messageStartY + messagePadding,
+    CW - messagePadding * 2,
+    7
+  );
+
+  y = messageEndY + messagePadding + 12;
+
+  // ── ANALYSIS SECTION ──────────────────────────────────────────────────────
+
+  y = ensurePageSpace(doc, y, 70);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+
+  setColor(doc, COLORS.black);
+
+  doc.text('HASIL ANALISIS', M, y);
+
+  y += 9;
+
+  const analysisPadding = 8;
+
+  const analysisStartY = y;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+
+  setColor(doc, COLORS.darkGray);
+
+  const analysisEndY = wrapText(
+    doc,
+    item.reason,
+    M + analysisPadding,
+    y + analysisPadding,
+    CW - analysisPadding * 2,
+    7
+  );
+
+  const analysisBoxHeight =
+    analysisEndY - analysisStartY + analysisPadding;
+
+  drawBox(
+    doc,
+    M,
+    analysisStartY,
+    CW,
+    analysisBoxHeight,
+    COLORS.white,
+    COLORS.lightGray
+  );
+
+  // redraw text
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+
+  setColor(doc, COLORS.darkGray);
+
+  wrapText(
+    doc,
+    item.reason,
+    M + analysisPadding,
+    analysisStartY + analysisPadding,
+    CW - analysisPadding * 2,
+    7
+  );
+
+  y = analysisEndY + analysisPadding + 14;
+
+  // ── RECOMMENDATIONS SECTION ───────────────────────────────────────────────
+
+  y = ensurePageSpace(doc, y, 80);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+
+  setColor(doc, COLORS.black);
+
+  doc.text('SARAN DAN TINDAKAN', M, y);
+
+  y += 10;
+
+  const recommendations = isSafe
+    ? [
+        'Tetap waspada terhadap link atau lampiran yang mencurigakan.',
+        'Jangan pernah membagikan PIN, OTP, atau password kepada siapapun.',
+        'Verifikasi kebenaran pesan langsung ke pengirim resmi jika ragu.',
+      ]
+    : [
+        'JANGAN klik link apapun yang ada di pesan ini.',
+        'JANGAN berikan data pribadi seperti KTP, rekening, atau OTP.',
+        'Laporkan pesan ini ke operator seluler atau pihak berwenang.',
+        'Blokir nomor pengirim untuk mencegah pesan lanjutan.',
+      ];
+
+  recommendations.forEach((rec, index) => {
+    y = ensurePageSpace(doc, y, 20);
+
+    const circleX = M + 4;
+    const circleY = y - 2;
+
+    // Circle
+    setColor(doc, statusColor, 'fill');
+
+    doc.circle(circleX, circleY, 3.2, 'F');
+
+    // Number centered
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+
+    setColor(doc, COLORS.white);
+
     doc.text(
-        isSafe
-            ? 'Tidak terdeteksi pola phishing yang signifikan pada pesan ini.'
-            : 'Terdeteksi pola smishing/phishing pada pesan ini. Harap berhati-hati.',
-        W / 2, y, { align: 'center' }
-    )
+      String(index + 1),
+      circleX,
+      circleY + 0.8,
+      {
+        align: 'center',
+      }
+    );
 
-    y += 14
+    // Recommendation text
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
 
-    // ── Risk meter ───────────────────────────────────────────────────────────
-    const barX = 20
-    const barW = W - 40
-    const barH = 5
-    const fill = isSafe ? 0.15 : 0.85
+    setColor(doc, COLORS.darkGray);
 
-    // Label
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(7.5)
-    doc.setTextColor(107, 107, 128)
-    doc.text('SKOR RISIKO', barX, y)
-    doc.text(isSafe ? 'RENDAH — 15/100' : 'TINGGI — 85/100', W - barX, y, { align: 'right' })
+    const recEndY = wrapText(
+      doc,
+      rec,
+      M + 12,
+      y,
+      CW - 12,
+      7
+    );
 
-    y += 4
+    y = recEndY + 5;
+  });
 
-    // Track
-    doc.setFillColor(26, 26, 38)
-    doc.setDrawColor(255, 255, 255, 0.08)
-    roundedRect(doc, barX, y, barW, barH, 2.5, 'F')
+  // ── FOOTER ────────────────────────────────────────────────────────────────
 
-    // Fill
-    doc.setFillColor(...accent)
-    roundedRect(doc, barX, y, barW * fill, barH, 2.5, 'F')
+  const footerY = H - 25;
 
-    y += 16
+  drawLine(doc, M, footerY, W - M, footerY);
 
-    // ── Divider ──────────────────────────────────────────────────────────────
-    doc.setDrawColor(255, 255, 255, 0.08)
-    doc.setLineWidth(0.3)
-    doc.line(20, y, W - 20, y)
-    y += 12
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
 
-    // ── Isi Pesan SMS ─────────────────────────────────────────────────────────
-    sectionLabel(doc, 'ISI PESAN SMS', 20, y)
-    y += 7
+  setColor(doc, COLORS.mediumGray);
 
-    const msgBoxH = 28
-    doc.setFillColor(26, 26, 38)
-    doc.setDrawColor(255, 255, 255, 0.08)
-    doc.setLineWidth(0.3)
-    roundedRect(doc, 20, y, W - 40, msgBoxH, 4, 'FD')
+  doc.text(
+    'Safe Message — Sistem Deteksi Phishing SMS',
+    M,
+    footerY + 6
+  );
 
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(8.5)
-    doc.setTextColor(240, 240, 248)
-    y = wrapText(doc, item.message, 26, y + 8, W - 52, 5.5)
+  doc.text(
+    'Laporan ini dibuat secara otomatis dan bersifat informatif.',
+    M,
+    footerY + 11
+  );
 
-    y += 6
+  doc.text(
+    'Jangan gunakan laporan ini sebagai satu-satunya dasar keputusan keamanan.',
+    M,
+    footerY + 16
+  );
 
-    // ── Alasan Analisis ───────────────────────────────────────────────────────
-    sectionLabel(doc, 'ALASAN ANALISIS AI', 20, y)
-    y += 7
+  doc.text(
+    `Halaman 1 dari 1 | Dicetak: ${new Date().toLocaleDateString(
+      'id-ID'
+    )}`,
+    W - M,
+    footerY + 6,
+    {
+      align: 'right',
+    }
+  );
 
-    const reasonLines = doc.splitTextToSize(item.reason || '-', W - 52)
-    const reasonBoxH = Math.max(24, reasonLines.length * 5.5 + 10)
+  // ── SAVE ──────────────────────────────────────────────────────────────────
 
-    doc.setFillColor(26, 26, 38)
-    doc.setDrawColor(...accent, 0.3)
-    doc.setLineWidth(0.3)
-    roundedRect(doc, 20, y, W - 40, reasonBoxH, 4, 'FD')
+  const filename = `laporan-smishing-${item.id}.pdf`;
 
-    // Accent left border
-    doc.setFillColor(...accent)
-    roundedRect(doc, 20, y, 2.5, reasonBoxH, 1, 'F')
-
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(8.5)
-    doc.setTextColor(240, 240, 248)
-    let ry = y + 7
-    reasonLines.forEach((line) => {
-        doc.text(line, 27, ry)
-        ry += 5.5
-    })
-    y += reasonBoxH + 10
-
-    // ── Saran ─────────────────────────────────────────────────────────────────
-    const tips = isSafe
-        ? [
-            'Pesan tampak aman, namun tetap waspada terhadap link mencurigakan.',
-            'Jangan pernah memberikan PIN, OTP, atau password kepada siapapun.',
-            'Konfirmasi kebenaran pesan langsung kepada pengirim resmi.',
-        ]
-        : [
-            'Jangan klik link apapun yang ada di pesan ini.',
-            'Jangan berikan data pribadi: KTP, rekening, atau OTP.',
-            'Laporkan pesan ini ke operator seluler atau pihak berwenang.',
-            'Blokir nomor pengirim pesan tersebut segera.',
-        ]
-
-    sectionLabel(doc, 'SARAN DARI AI', 20, y)
-    y += 7
-
-    const tipsBoxH = tips.length * 9 + 8
-    doc.setFillColor(15, 16, 34)
-    doc.setDrawColor(71, 200, 255, 0.2)
-    doc.setLineWidth(0.3)
-    roundedRect(doc, 20, y, W - 40, tipsBoxH, 4, 'FD')
-
-    doc.setFontSize(8)
-    tips.forEach((tip, i) => {
-        doc.setTextColor(71, 200, 255)
-        doc.text('→', 27, y + 8 + i * 9)
-        doc.setTextColor(200, 200, 210)
-        doc.text(tip, 33, y + 8 + i * 9)
-    })
-
-    y += tipsBoxH + 10
-
-    // ── Meta info ─────────────────────────────────────────────────────────────
-    doc.setDrawColor(255, 255, 255, 0.06)
-    doc.setLineWidth(0.3)
-    doc.line(20, y, W - 20, y)
-    y += 8
-
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(7.5)
-    doc.setTextColor(107, 107, 128)
-    doc.text(`Waktu Pengecekan: ${formatDate(item.timestamp)}`, 20, y)
-    doc.text(`ID: SM-${item.id}`, W - 20, y, { align: 'right' })
-
-    // ── Footer ────────────────────────────────────────────────────────────────
-    doc.setFillColor(18, 18, 26)
-    doc.rect(0, H - 16, W, 16, 'F')
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(7)
-    doc.setTextColor(107, 107, 128)
-    doc.text('© 2026 Safe Massage — Laporan ini dibuat otomatis oleh sistem AI.', W / 2, H - 6, { align: 'center' })
-
-    // ── Save ──────────────────────────────────────────────────────────────────
-    const filename = `SafeMassage_${isSafe ? 'Aman' : 'Bahaya'}_${item.id}.pdf`
-    doc.save(filename)
-}
-
-// ── Helpers internal ─────────────────────────────────────────────────────────
-
-function sectionLabel(doc, text, x, y) {
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(7.5)
-    doc.setTextColor(107, 107, 128)
-    doc.text(text, x, y)
-}
-
-function roundedRect(doc, x, y, w, h, r, style) {
-    doc.roundedRect(x, y, w, h, r, r, style)
+  doc.save(filename);
 }

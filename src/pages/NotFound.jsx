@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0f] flex flex-col transition-colors duration-300">
 
       {/* ── Content area ── */}
       <main className="flex-1 flex flex-col items-center justify-center relative overflow-hidden px-6 py-20">
@@ -15,7 +15,7 @@ export default function NotFound() {
         </div>
 
         {/* Search icon box */}
-        <div className="relative z-10 w-16 h-16 rounded-2xl bg-[#1a1a26] border border-white/10 flex items-center justify-center mb-6">
+        <div className="relative z-10 w-16 h-16 rounded-2xl bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 flex items-center justify-center mb-6 transition-colors duration-300">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="28"
@@ -33,22 +33,22 @@ export default function NotFound() {
         </div>
 
         {/* Badge pill */}
-        <div className="relative z-10 inline-flex items-center gap-2 border border-white/20 rounded-full px-4 py-1.5 mb-8">
-          <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-white/60 font-sans">
+        <div className="relative z-10 inline-flex items-center gap-2 border border-gray-200 dark:border-white/20 rounded-full px-4 py-1.5 mb-8 transition-colors duration-300">
+          <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-slate-500 dark:text-white/60 font-sans transition-colors duration-300">
             Kesalahan Navigasi • Data Tidak Ditemukan
           </span>
         </div>
 
 
         <h1
-          className="relative z-10 font-display font-extrabold text-white text-center uppercase leading-none tracking-tight mb-6"
+          className="relative z-10 font-display font-extrabold text-slate-900 dark:text-white text-center uppercase leading-none tracking-tight mb-6 transition-colors duration-300"
           style={{ fontSize: 'clamp(56px, 10vw, 80px)' }}
         >
           Halaman<br />Tidak<br />Ditemukan
         </h1>
 
 
-        <p className="relative z-10 text-center text-white/50 font-sans font-light text-base leading-relaxed max-w-md mb-10">
+        <p className="relative z-10 text-center text-slate-500 dark:text-white/50 font-sans font-light text-base leading-relaxed max-w-md mb-10 transition-colors duration-300">
           Maaf, halaman yang Anda cari tidak tersedia atau telah dipindahkan.
           Pastikan URL yang Anda masukkan sudah benar.
         </p>
@@ -80,9 +80,9 @@ export default function NotFound() {
         </Link>
 
         {/* System status pill */}
-        <div className="relative z-10 inline-flex items-center gap-2 border border-white/10 bg-white/[0.03] rounded-full px-5 py-2">
+        <div className="relative z-10 inline-flex items-center gap-2 border border-gray-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] rounded-full px-5 py-2 transition-colors duration-300">
           <span className="w-2 h-2 rounded-full bg-[#e8ff47] animate-pulse" />
-          <span className="text-[10px] font-semibold tracking-[0.18em] uppercase text-white/50 font-sans">
+          <span className="text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-white/50 font-sans transition-colors duration-300">
             Safe Massage System Active
           </span>
         </div>

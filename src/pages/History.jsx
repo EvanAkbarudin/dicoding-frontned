@@ -17,7 +17,7 @@ export default function History() {
   }
 
   const statCards = [
-    { num: totalCount, label: 'Total dicek', numColor: 'text-white', glowColor: 'bg-[#e8ff47]' },
+    { num: totalCount, label: 'Total dicek', numColor: 'text-slate-900 dark:text-white', glowColor: 'bg-[#e8ff47]' },
     { num: phishingCount, label: 'Terdeteksi phishing', numColor: 'text-[#e74c3c]', glowColor: 'bg-[#e74c3c]' },
     { num: safeCount, label: 'Terdeteksi aman', numColor: 'text-[#2ecc71]', glowColor: 'bg-[#2ecc71]' },
   ]
@@ -27,23 +27,25 @@ export default function History() {
 
       {/* ── Stat cards ── */}
       <div className="grid grid-cols-3 gap-3 mb-10">
-        {statCards.map((s) => (
+        {statCards.map((s, index) => (
           <div
             key={s.label}
-            className="relative bg-[#12121a] border border-white/10 rounded-2xl p-6 overflow-hidden"
+            data-aos="fade-up"
+            data-aos-delay={index * 100}
+            className="relative bg-white dark:bg-[#12121a] border border-gray-200 dark:border-white/10 rounded-2xl p-6 overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300"
           >
-            <div className={`font-display font-extrabold text-4xl leading-none mb-1.5 ${s.numColor}`}>
+            <div className={`font-display font-extrabold text-4xl leading-none mb-1.5 transition-colors duration-300 ${s.numColor}`}>
               {s.num}
             </div>
-            <div className="text-xs text-white/40 font-sans">{s.label}</div>
-            <div className={`absolute -top-5 -right-5 w-20 h-20 rounded-full opacity-[0.06] ${s.glowColor}`} />
+            <div className="text-xs text-slate-500 dark:text-white/40 font-sans transition-colors duration-300">{s.label}</div>
+            <div className={`absolute -top-5 -right-5 w-20 h-20 rounded-full opacity-[0.06] transition-colors duration-300 ${s.glowColor}`} />
           </div>
         ))}
       </div>
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="font-display font-bold text-xl text-white">
+      <div data-aos="fade-up" className="flex items-center justify-between mb-5">
+        <h2 className="font-display font-bold text-xl text-slate-900 dark:text-white transition-colors duration-300">
           Riwayat Pengecekan
         </h2>
         {history.length > 0 && (
@@ -62,13 +64,13 @@ export default function History() {
       {history.length === 0 ? (
         <div className="text-center py-20">
           <div className="text-4xl mb-4">📭</div>
-          <p className="text-white/30 text-sm font-sans">
+          <p className="text-slate-400 dark:text-white/30 text-sm font-sans transition-colors duration-300">
             Belum ada riwayat pengecekan. Coba cek SMS pertamamu!
           </p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {history.map((item) => {
+          {history.map((item, index) => {
             const isSafe = item.status === 'safe'
             const isLoading = downloadingId === item.id
             const statusColor = isSafe ? 'text-[#2ecc71]' : 'text-[#e74c3c]'
@@ -78,8 +80,10 @@ export default function History() {
             return (
               <div
                 key={item.id}
-                className={`bg-[#12121a] border border-white/10 rounded-2xl p-5
-                            transition-all duration-150 ${borderHover}`}
+                data-aos="fade-up"
+                data-aos-delay={index * 50}
+                className={`bg-white dark:bg-[#12121a] border border-gray-200 dark:border-white/10 rounded-2xl p-5 shadow-sm dark:shadow-none
+                            transition-all duration-300 ${borderHover}`}
               >
                 {/* Row atas: icon + teks + badge */}
                 <div className="flex items-start justify-between gap-4">
@@ -90,10 +94,10 @@ export default function History() {
                       {isSafe ? '✅' : '🚨'}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white/80 mb-1 font-sans truncate">
+                      <p className="text-sm font-medium text-slate-800 dark:text-white/80 mb-1 font-sans truncate transition-colors duration-300">
                         {item.message}
                       </p>
-                      <p className="text-xs text-white/30 font-sans leading-relaxed line-clamp-2">
+                      <p className="text-xs text-slate-500 dark:text-white/30 font-sans leading-relaxed line-clamp-2 transition-colors duration-300">
                         {item.reason}
                       </p>
                     </div>
@@ -101,25 +105,25 @@ export default function History() {
 
                   {/* Kanan: status + waktu */}
                   <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                    <span className={`font-display font-bold text-sm ${statusColor}`}>
+                    <span className={`font-display font-bold text-sm transition-colors duration-300 ${statusColor}`}>
                       {isSafe ? 'AMAN' : 'BAHAYA'}
                     </span>
-                    <span className="text-[10px] text-white/25 font-sans">
+                    <span className="text-[10px] text-slate-400 dark:text-white/25 font-sans transition-colors duration-300">
                       {timeAgo(item.timestamp)}
                     </span>
                   </div>
                 </div>
 
                 {/* Row bawah: meta + tombol unduh */}
-                <div className="flex items-center justify-between mt-4 pt-3.5 border-t border-white/[0.06]">
+                <div className="flex items-center justify-between mt-4 pt-3.5 border-t border-gray-100 dark:border-white/[0.06] transition-colors duration-300">
 
                   {/* Meta */}
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-white/20 font-sans">
+                    <span className="text-[10px] text-slate-400 dark:text-white/20 font-sans transition-colors duration-300">
                       ID: SM-{item.id}
                     </span>
-                    <span className="text-white/10">·</span>
-                    <span className="text-[10px] text-white/20 font-sans">
+                    <span className="text-slate-300 dark:text-white/10 transition-colors duration-300">·</span>
+                    <span className="text-[10px] text-slate-400 dark:text-white/20 font-sans transition-colors duration-300">
                       {new Date(item.timestamp).toLocaleDateString('id-ID', {
                         day: '2-digit', month: 'short', year: 'numeric',
                       })}
