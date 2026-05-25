@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://hafi1-smishing-backend.hf.space',
+  baseURL: 'https://hafi1-smishing-detection-api.hf.space',
   headers: {
     'Content-Type': 'application/json',
   },

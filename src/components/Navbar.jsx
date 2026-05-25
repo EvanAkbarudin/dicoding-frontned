@@ -44,37 +44,29 @@ export default function Navbar() {
 
       {/* Theme Toggle & CTA */}
       <div className="flex items-center gap-4">
+        {/* Theme Toggle Switch */}
         <button
           onClick={toggleTheme}
-          className="p-2.5 rounded-lg border border-gray-300 dark:border-white/10 text-[#0a0a0f] dark:text-white
-                     hover:bg-gray-100 dark:hover:bg-white/5 transition-colors duration-200"
           title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          className={`relative flex items-center w-15 h-7.5 rounded-full border transition-all duration-300 focus:outline-none
+            ${isDark ? "bg-[#1a1a2e] border-white/20" : "bg-gray-100 border-gray-300"}`}
         >
-          {isDark ? (
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.536l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm5.414 5.414a1 1 0 01-1.414 0l-.707-.707a1 1 0 011.414-1.414l.707.707zM5 11a1 1 0 100-2H4a1 1 0 100 2h1z"
-                clipRule="evenodd"
-              />
-            </svg>
-          )}
+          {/* Track icons */}
+          <span className="absolute left-1.5 text-[13px] select-none">☀️</span>
+          <span className="absolute right-1.5 text-[11px] select-none">🌙</span>
+
+          {/* Sliding knob */}
+          <span
+            className={`absolute top-0.75 w-6 h-6 rounded-full shadow-md transition-all duration-300 flex items-center justify-center
+              ${isDark ? "translate-x-7.5 bg-[#e8ff47]" : "translate-x-0.5 bg-white border border-gray-200"}`}
+          />
         </button>
 
         {user ? (
           <div className="relative">
-            <button 
-              onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 transition-colors"
-            >
-              <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold uppercase">
-                {user.name.charAt(0)}
-              </div>
-              <span className="text-sm font-medium text-slate-800 dark:text-white font-sans max-w-[100px] truncate">{user.name}</span>
+            <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 transition-colors">
+              <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold uppercase">{user.name.charAt(0)}</div>
+              <span className="text-sm font-medium text-slate-800 dark:text-white font-sans max-w-25 truncate">{user.name}</span>
             </button>
 
             {isProfileOpen && (
@@ -83,16 +75,16 @@ export default function Navbar() {
                   <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{user.name}</p>
                   <p className="text-xs text-slate-500 dark:text-white/50 truncate">{user.email}</p>
                 </div>
-                <button 
+                <button
                   onClick={() => {
-                    login({ name: 'Switch User', email: 'other@example.com' });
+                    login({ name: "Switch User", email: "other@example.com" });
                     setIsProfileOpen(false);
                   }}
                   className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
                 >
                   <Users size={16} /> Switch Account
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     logout();
                     setIsProfileOpen(false);

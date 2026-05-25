@@ -1,36 +1,40 @@
 import api from '../lib/axios';
 
-export const ENDPOINT = "/predict";
+export const ENDPOINT = "/api/v1/predictions";
 
 // Format response backend:
 // {
-//   "prediksi"     : "SMISHING" | "HAM",
-//   "probabilitas" : 0.79,
-//   "status"       : "sukses"
+//   "prediction": "smishing" | "ham",
+//   "confidence": 0.95,
+//   "message": "Pesan terdeteksi sebagai smishing dengan confidence 95%"
 // }
 
 export async function checkMessage(messageText) {
   try {
-    const response = await api.post(ENDPOINT, { message: messageText });
+    const response = await api.post(ENDPOINT, { text: messageText });
     return normalizeResponse(response.data);
   } catch (error) {
     if (error.response) {
-      throw new Error(`Server error: ${error.response.status} — ${error.response.data}`);
+      const status = error.response.status;
+      const message = error.response.data?.detail || error.response.data?.message || 'Unknown error';
+      throw new Error(`Server error: ${status} — ${message}`);
     }
-    throw new Error(`Network error: ${error.message}`);
+    if (error.request) {
+      throw new Error('Network error: Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+    }
+    throw new Error(`Error: ${error.message}`);
   }
 }
 
 function normalizeResponse(raw) {
-  // Validasi: backend harus return status sukses
-  if (raw.status !== "sukses") {
-    throw new Error("Backend mengembalikan status tidak sukses.");
+  if (!raw || typeof raw !== 'object') {
+    throw new Error("Response backend tidak valid.");
   }
 
-  const prediksi = (raw.prediksi ?? "").toUpperCase(); // "SMISHING" | "HAM"
-  const probabilitas = raw.probabilitas ?? 0;
-  const persen = Math.round(probabilitas * 100);
-  const isPhishing = prediksi === "SMISHING";
+  const prediction = (raw.prediction ?? "").toLowerCase();
+  const confidence = raw.confidence ?? 0;
+  const persen = Math.round(confidence * 100);
+  const isPhishing = prediction === "smishing";
 
   return {
     status: isPhishing ? "phishing" : "safe",
