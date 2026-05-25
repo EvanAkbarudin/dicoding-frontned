@@ -4,19 +4,23 @@ export const ENDPOINT = "/api/v1/predictions";
 
 // Format response backend:
 // {
-//   "prediction": "smishing" | "ham",
-//   "confidence": 0.95,
-//   "message": "Pesan terdeteksi sebagai smishing dengan confidence 95%"
+//   "is_phishing": true,
+//   "label": "PHISHING" | "NORMAL",
+//   "confidence": 100.0,
+//   "phishing_score": 100.0,
+//   "normal_score": 0.0,
+//   "rekomendasi": "...",
+//   "teks": "..."
 // }
 
 export async function checkMessage(messageText) {
   try {
-    const response = await api.post(ENDPOINT, { text: messageText });
+    const response = await api.post(ENDPOINT, { teks: messageText });
     return normalizeResponse(response.data);
   } catch (error) {
     if (error.response) {
       const status = error.response.status;
-      const message = error.response.data?.detail || error.response.data?.message || 'Unknown error';
+      const message = error.response.data?.error || error.response.data?.detail || 'Unknown error';
       throw new Error(`Server error: ${status} — ${message}`);
     }
     if (error.request) {
@@ -31,10 +35,9 @@ function normalizeResponse(raw) {
     throw new Error("Response backend tidak valid.");
   }
 
-  const prediction = (raw.prediction ?? "").toLowerCase();
+  const isPhishing = raw.is_phishing ?? false;
   const confidence = raw.confidence ?? 0;
-  const persen = Math.round(confidence * 100);
-  const isPhishing = prediction === "smishing";
+  const persen = Math.round(confidence);
 
   return {
     status: isPhishing ? "phishing" : "safe",
