@@ -24,7 +24,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 md:px-10 py-4 border-b border-white/10 dark:border-gray-800 bg-white dark:bg-[#0a0a0f] dark:bg-opacity-85 dark:backdrop-blur-xl transition-colors duration-300">
       {/* Logo */}
       <div className="flex items-center gap-2 font-display font-extrabold text-lg sm:text-xl tracking-tight text-[#0a0a0f] dark:text-white cursor-pointer" onClick={() => navigate("/")}>
-        <span className="w-2.5 h-2.5 rounded-full bg-[#e8ff47] animate-pulse" />
+        <span className="w-2.5 h-2.5 rounded-full bg-[#b8a800] dark:bg-[#e8ff47] animate-pulse" />
         <span className="hidden sm:inline">Safe Massage</span>
         <span className="sm:hidden">SM</span>
       </div>
@@ -98,7 +98,7 @@ export default function Navbar() {
         ) : (
           <button
             onClick={openAuthModal}
-            className="hidden sm:flex px-4 sm:px-5 py-2 rounded-lg bg-[#e8ff47] text-[#0a0a0f] text-sm font-medium font-sans
+            className="hidden sm:flex px-4 sm:px-5 py-2 rounded-lg bg-[#b8a800] dark:bg-[#e8ff47] text-white dark:text-[#0a0a0f] text-sm font-medium font-sans
                        transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0"
           >
             Mulai Gratis
@@ -127,7 +127,7 @@ export default function Navbar() {
                   }}
                   className={`w-full text-left px-4 py-3 rounded-lg text-sm font-sans transition-colors duration-200
                     ${location.pathname === l.path 
-                      ? "bg-[#e8ff47]/10 text-[#0a0a0f] dark:text-white font-medium" 
+                      ? "bg-[#b8a800]/10 dark:bg-[#e8ff47]/10 text-[#0a0a0f] dark:text-white font-medium" 
                       : "text-gray-600 dark:text-white/60 hover:bg-gray-50 dark:hover:bg-white/5"}`}
                 >
                   {l.label}
@@ -141,7 +141,7 @@ export default function Navbar() {
                     openAuthModal();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="w-full px-4 py-3 rounded-lg bg-[#e8ff47] text-[#0a0a0f] text-sm font-medium font-sans text-center"
+                  className="w-full px-4 py-3 rounded-lg bg-[#b8a800] dark:bg-[#e8ff47] text-white dark:text-[#0a0a0f] text-sm font-medium font-sans text-center"
                 >
                   Mulai Gratis
                 </button>

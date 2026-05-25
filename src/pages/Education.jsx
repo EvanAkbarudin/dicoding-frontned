@@ -90,7 +90,7 @@ export default function Education() {
                         text-slate-500 dark:text-white/50 text-[10px] font-semibold tracking-[0.15em] uppercase
                         px-4 py-1.5 rounded-full mb-6 transition-colors duration-300"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#e8ff47] inline-block" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#b8a800] dark:bg-[#e8ff47] inline-block" />
           Edukasi Keamanan Digital
         </div>
         <p className="text-sm sm:text-base text-slate-500 dark:text-white/50 font-sans font-light leading-relaxed max-w-sm mx-auto transition-colors duration-300">
@@ -99,10 +99,10 @@ export default function Education() {
       </div>
 
       {/* ── Section 1: Apa itu Phishing? ── */}
-      <div data-aos="fade-up" className="relative bg-white dark:bg-[#12121a] shadow-sm dark:shadow-none border border-gray-200 dark:border-[#e8ff47]/20 rounded-2xl p-6 sm:p-8 mb-12 sm:mb-16 overflow-hidden transition-colors duration-300">
-        <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#e8ff47]/40 to-transparent" />
+      <div data-aos="fade-up" className="relative bg-white dark:bg-[#12121a] shadow-sm dark:shadow-none border border-gray-200 dark:border-[#b8a800]/20 rounded-2xl p-6 sm:p-8 mb-12 sm:mb-16 overflow-hidden transition-colors duration-300">
+        <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#b8a800]/40 dark:via-[#e8ff47]/40 to-transparent" />
 
-        <h2 className="font-display font-bold text-slate-900 dark:text-[#e8ff47] text-lg sm:text-xl mb-4 sm:mb-6 flex items-center gap-2 transition-colors duration-300">🎣 Apa itu Phishing?</h2>
+        <h2 className="font-display font-bold text-slate-900 dark:text-[#b8a800] text-lg sm:text-xl mb-4 sm:mb-6 flex items-center gap-2 transition-colors duration-300">🎣 Apa itu Phishing?</h2>
 
         <div className="flex flex-col md:flex-row gap-6 sm:gap-8 items-start">
           <div className="flex-1 space-y-4">
@@ -134,8 +134,8 @@ export default function Education() {
               key={sign.title}
               data-aos="fade-up"
               data-aos-delay={index * 100}
-              className="bg-[#e8ff47] rounded-2xl p-5 sm:p-6 flex flex-col items-center text-center
-                         transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(232,255,71,0.15)]"
+              className="bg-[#b8a800] dark:bg-[#e8ff47] rounded-2xl p-5 sm:p-6 flex flex-col items-center text-center
+                         transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(184,168,0,0.15)] dark:hover:shadow-[0_12px_30px_rgba(232,255,71,0.15)]"
             >
               <div className={`w-12 h-12 rounded-full ${sign.iconBg} flex items-center justify-center text-2xl mb-4`}>{sign.icon}</div>
               <h3 className="font-display font-bold text-[#0a0a0f] text-sm mb-2">{sign.title}</h3>
@@ -158,7 +158,7 @@ export default function Education() {
             >
               <span className="text-xl shrink-0 mt-0.5">{step.icon}</span>
               <div>
-                <p className="font-display font-bold text-slate-800 dark:text-[#e8ff47] text-sm mb-1 transition-colors duration-300">{step.title}</p>
+                <p className="font-display font-bold text-slate-800 dark:text-[#b8a800] text-sm mb-1 transition-colors duration-300">{step.title}</p>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-white/50 font-sans font-light leading-relaxed transition-colors duration-300">{step.desc}</p>
               </div>
             </div>
@@ -176,8 +176,8 @@ export default function Education() {
               key={faq.q}
               data-aos="fade-up"
               data-aos-delay={index * 100}
-              className="bg-[#e8ff47] rounded-2xl px-5 sm:px-7 py-4 sm:py-5
-                         transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(232,255,71,0.2)]"
+              className="bg-[#b8a800] dark:bg-[#e8ff47] rounded-2xl px-5 sm:px-7 py-4 sm:py-5
+                         transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(184,168,0,0.2)] dark:hover:shadow-[0_8px_24px_rgba(232,255,71,0.2)]"
             >
               <p className="font-display font-bold text-[#0a0a0f] text-sm mb-2">{faq.q}</p>
               <p className="text-xs sm:text-sm text-[#0a0a0f]/70 font-sans font-light leading-relaxed">{faq.a}</p>
