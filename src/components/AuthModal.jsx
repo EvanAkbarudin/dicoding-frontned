@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -21,7 +21,7 @@ const registerSchema = z.object({
 });
 
 export default function AuthModal() {
-  const { isAuthModalOpen, closeAuthModal, login, registerUser } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, login, registerUser, loginWithGoogle } = useAuth();
   const [isLoginView, setIsLoginView] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -35,6 +35,52 @@ export default function AuthModal() {
   const { register: registerSignup, handleSubmit: handleSignupSubmit, formState: { errors: signupErrors }, reset: resetSignup } = useForm({
     resolver: zodResolver(registerSchema),
   });
+
+  const handleGoogleCredentialResponse = async (response) => {
+    setGeneralError('');
+    setLoading(true);
+    try {
+      await loginWithGoogle(response.credential);
+    } catch (err) {
+      setGeneralError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    /* global google */
+    if (isAuthModalOpen) {
+      const timer = setTimeout(() => {
+        if (window.google && document.getElementById("google-signin-btn")) {
+          try {
+            const client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID || "1020148222245-e0t7jsf4sm5p5fi10eckd144673fr61s.apps.googleusercontent.com";
+
+            window.google.accounts.id.initialize({
+              client_id: client_id,
+              callback: handleGoogleCredentialResponse,
+            });
+
+            window.google.accounts.id.renderButton(
+              document.getElementById("google-signin-btn"),
+              {
+                theme: "outline",
+                size: "large",
+                width: "382",
+                text: "continue_with",
+                shape: "rectangular"
+              }
+            );
+
+            window.google.accounts.id.prompt();
+          } catch (err) {
+            console.error("Google Sign-In initialization failed:", err);
+          }
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthModalOpen]);
 
   if (!isAuthModalOpen) return null;
 
@@ -62,28 +108,6 @@ export default function AuthModal() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setGeneralError('');
-    setLoading(true);
-    const googleEmail = 'google.user@gmail.com';
-    const googlePass = 'GoogleUserPassword123';
-    const googleName = 'Google User';
-
-    try {
-      // Try to login first
-      await login(googleEmail, googlePass);
-    } catch (err) {
-      // If login fails, try to register the user
-      try {
-        await registerUser(googleName, googleEmail, googlePass);
-      } catch (regErr) {
-        setGeneralError('Gagal masuk menggunakan Google. Silakan coba lagi.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const switchView = () => {
     setIsLoginView(!isLoginView);
     setGeneralError('');
@@ -94,9 +118,9 @@ export default function AuthModal() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-md bg-white dark:bg-[#12121a] border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden transition-colors duration-300">
-        
+
         {/* Close Button */}
-        <button 
+        <button
           onClick={closeAuthModal}
           className="absolute top-4 right-4 text-gray-500 dark:text-white/40 hover:text-gray-800 dark:hover:text-white/80 transition-colors"
           disabled={loading}
@@ -121,12 +145,12 @@ export default function AuthModal() {
           )}
 
           <form onSubmit={isLoginView ? handleLoginSubmit(onLogin) : handleSignupSubmit(onRegister)} className="space-y-4">
-            
+
             {!isLoginView && (
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/40 mb-1.5">Nama Lengkap</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   {...registerSignup('name')}
                   disabled={loading}
                   className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm outline-none focus:border-[#e8ff47] focus:ring-1 focus:ring-[#e8ff47]/50 transition-colors"
@@ -138,8 +162,8 @@ export default function AuthModal() {
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/40 mb-1.5">Email</label>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 {...(isLoginView ? registerLogin('email') : registerSignup('email'))}
                 disabled={loading}
                 className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm outline-none focus:border-[#e8ff47] focus:ring-1 focus:ring-[#e8ff47]/50 transition-colors"
@@ -153,8 +177,8 @@ export default function AuthModal() {
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/40 mb-1.5">Password</label>
               <div className="relative">
-                <input 
-                  type={showPassword ? "text" : "password"} 
+                <input
+                  type={showPassword ? "text" : "password"}
                   {...(isLoginView ? registerLogin('password') : registerSignup('password'))}
                   disabled={loading}
                   className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 pr-10 text-slate-900 dark:text-white text-sm outline-none focus:border-[#e8ff47] focus:ring-1 focus:ring-[#e8ff47]/50 transition-colors"
@@ -177,8 +201,8 @@ export default function AuthModal() {
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/40 mb-1.5">Konfirmasi Password</label>
                 <div className="relative">
-                  <input 
-                    type={showConfirmPassword ? "text" : "password"} 
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
                     {...registerSignup('confirmPassword')}
                     disabled={loading}
                     className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 pr-10 text-slate-900 dark:text-white text-sm outline-none focus:border-[#e8ff47] focus:ring-1 focus:ring-[#e8ff47]/50 transition-colors"
@@ -196,7 +220,7 @@ export default function AuthModal() {
               </div>
             )}
 
-            <button 
+            <button
               type="submit"
               disabled={loading}
               className="w-full bg-[#e8ff47] hover:bg-[#d4eb33] text-[#0a0a0f] font-bold font-display py-3.5 rounded-xl mt-4 transition-colors flex items-center justify-center gap-2"
@@ -218,26 +242,13 @@ export default function AuthModal() {
             <div className="h-px bg-gray-200 dark:bg-white/10 flex-1"></div>
           </div>
 
-          <button 
-            type="button"
-            onClick={handleGoogleLogin}
-            disabled={loading}
-            className="w-full bg-white dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 text-slate-700 dark:text-white hover:bg-gray-50 dark:hover:bg-[#20202e] font-medium text-sm py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
-              <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
-                <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/>
-                <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/>
-                <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"/>
-                <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/>
-              </g>
-            </svg>
-            Lanjutkan dengan Google
-          </button>
+          <div className="w-full flex justify-center min-h-[46px] mt-4">
+            <div id="google-signin-btn" className="w-full flex justify-center"></div>
+          </div>
 
           <p className="text-center text-xs text-slate-500 dark:text-white/50 mt-6 font-sans transition-colors">
             {isLoginView ? 'Belum punya akun?' : 'Sudah punya akun?'}
-            <button 
+            <button
               type="button"
               onClick={switchView}
               disabled={loading}

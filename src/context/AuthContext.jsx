@@ -65,6 +65,22 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const loginWithGoogle = async (googleToken) => {
+    try {
+      const response = await api.post('/api/v1/auth/google', { token: googleToken });
+      if (response.data?.status === 'success') {
+        const { user: userData, token } = response.data.data;
+        localStorage.setItem('smishing_token', token);
+        setUser(userData);
+        setIsAuthModalOpen(false);
+        return { success: true };
+      }
+    } catch (err) {
+      const message = err.response?.data?.error || 'Gagal masuk menggunakan Google.';
+      throw new Error(message);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('smishing_token');
     setUser(null);
@@ -79,6 +95,7 @@ export function AuthProvider({ children }) {
       loading,
       login, 
       registerUser, 
+      loginWithGoogle,
       logout, 
       isAuthModalOpen, 
       openAuthModal, 
