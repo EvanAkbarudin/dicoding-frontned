@@ -100,6 +100,20 @@ export default function History() {
                       <p className="text-xs text-slate-500 dark:text-white/30 font-sans leading-relaxed line-clamp-2 transition-colors duration-300">
                         {item.reason}
                       </p>
+                      
+                      {/* Skor & Keyakinan */}
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                        {item.phishingScore !== undefined && item.phishingScore !== null && (
+                          <span className={`inline-flex items-center text-[10px] px-2 py-0.5 rounded font-sans font-semibold tracking-wide uppercase ${isSafe ? 'bg-[#2ecc71]/10 text-[#2ecc71]' : 'bg-[#e74c3c]/10 text-[#e74c3c]'}`}>
+                            Skor Risiko: {Math.round(item.phishingScore)}%
+                          </span>
+                        )}
+                        {item.confidence !== undefined && item.confidence !== null && (
+                          <span className="inline-flex items-center text-[10px] px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-white/40 font-sans font-semibold tracking-wide uppercase">
+                            Keyakinan: {item.confidence}%
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -118,7 +132,7 @@ export default function History() {
                 <div className="flex items-center justify-between mt-4 pt-3.5 border-t border-gray-100 dark:border-white/[0.06] transition-colors duration-300">
 
                   {/* Meta */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="text-[10px] text-slate-400 dark:text-white/20 font-sans transition-colors duration-300">
                       ID: SM-{item.id}
                     </span>
@@ -128,6 +142,14 @@ export default function History() {
                         day: '2-digit', month: 'short', year: 'numeric',
                       })}
                     </span>
+                    {item.user?.email && (
+                      <>
+                        <span className="text-slate-300 dark:text-white/10 transition-colors duration-300">·</span>
+                        <span className="text-[10px] text-[#b8a800] dark:text-[#e8ff47] font-sans font-medium transition-colors duration-300">
+                          👤 Pengecek: {item.user.email}
+                        </span>
+                      </>
+                    )}
                   </div>
 
                   {/* Tombol unduh PDF */}
