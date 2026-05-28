@@ -1,34 +1,56 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { loadHistory, saveHistory, clearHistory } from "../data/storage";
+import { useAuth } from "./AuthContext";
+import api from "../lib/axios";
 
 const HistoryContext = createContext();
 
 export function HistoryProvider({ children }) {
   const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
-  // Load history from localStorage on mount
+  // Load history from PostgreSQL via API when user is logged in
   useEffect(() => {
-    setHistory(loadHistory());
-  }, []);
+    async function fetchHistory() {
+      if (!user) {
+        setHistory([]);
+        return;
+      }
 
-  // Add new entry to history
-  function addEntry(result, message) {
-    const newEntry = {
-      id: Date.now(),
-      message,
-      status: result.status,
-      reason: result.reason,
-      timestamp: new Date().toISOString(),
-    };
-    const updated = [newEntry, ...history];
-    setHistory(updated);
-    saveHistory(updated);
+      setLoading(true);
+      try {
+        const response = await api.get("/api/v1/history");
+        if (response.data?.status === "success") {
+          setHistory(response.data.data.histories);
+        }
+      } catch (err) {
+        console.error("Gagal memuat riwayat dari server:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchHistory();
+  }, [user]);
+
+  // Add new entry to state (already saved to database during prediction proxy)
+  function addEntry(newEntry) {
+    if (!newEntry) return;
+    setHistory((prev) => [newEntry, ...prev]);
   }
 
   // Remove all history
-  function removeAll() {
-    setHistory([]);
-    clearHistory();
+  async function removeAll() {
+    if (!user) return;
+    try {
+      const response = await api.delete("/api/v1/history");
+      if (response.data?.status === "success") {
+        setHistory([]);
+      }
+    } catch (err) {
+      console.error("Gagal menghapus riwayat di server:", err);
+      alert("Gagal menghapus riwayat di server.");
+    }
   }
 
   // Count stats
@@ -40,6 +62,7 @@ export function HistoryProvider({ children }) {
     <HistoryContext.Provider
       value={{
         history,
+        loading,
         addEntry,
         removeAll,
         totalCount,

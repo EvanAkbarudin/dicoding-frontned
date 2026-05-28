@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { ChevronDown, ExternalLink } from 'lucide-react';
+import api from '../lib/axios';
 
 const feedbackSchema = z.object({
   category: z.string().min(1, 'Pilih kategori masukan'),
@@ -33,14 +34,19 @@ export default function Feedback() {
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("Feedback data:", data);
-    setIsSubmitting(false);
-    setIsSuccess(true);
-    reset();
-    
-    setTimeout(() => setIsSuccess(false), 5000);
+    try {
+      const response = await api.post('/api/v1/feedbacks', data);
+      if (response.data?.status === 'success') {
+        setIsSuccess(true);
+        reset();
+        setTimeout(() => setIsSuccess(false), 5000);
+      }
+    } catch (err) {
+      console.error('Failed to submit feedback:', err);
+      alert(err.response?.data?.error || 'Gagal mengirimkan masukan. Silakan coba lagi.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

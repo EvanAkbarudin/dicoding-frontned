@@ -25,7 +25,7 @@ export default function TextInput({ onResult }) {
 
     try {
       const data = await checkMessage(text)
-      addEntry(data, text)
+      addEntry(data)
       onResult(data)
     } catch (err) {
       console.error(err)

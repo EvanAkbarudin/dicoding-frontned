@@ -76,7 +76,8 @@ export default function Navbar() {
                 </div>
                 <button
                   onClick={() => {
-                    login({ name: "Switch User", email: "other@example.com" });
+                    logout();
+                    openAuthModal();
                     setIsProfileOpen(false);
                   }}
                   className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"

@@ -21,10 +21,12 @@ const registerSchema = z.object({
 });
 
 export default function AuthModal() {
-  const { isAuthModalOpen, closeAuthModal, login } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, login, registerUser } = useAuth();
   const [isLoginView, setIsLoginView] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [generalError, setGeneralError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const { register: registerLogin, handleSubmit: handleLoginSubmit, formState: { errors: loginErrors }, reset: resetLogin } = useForm({
     resolver: zodResolver(loginSchema),
@@ -36,16 +38,55 @@ export default function AuthModal() {
 
   if (!isAuthModalOpen) return null;
 
-  const onLogin = (data) => {
-    login(data);
+  const onLogin = async (data) => {
+    setGeneralError('');
+    setLoading(true);
+    try {
+      await login(data.email, data.password);
+    } catch (err) {
+      setGeneralError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const onRegister = (data) => {
-    login(data);
+  const onRegister = async (data) => {
+    setGeneralError('');
+    setLoading(true);
+    try {
+      await registerUser(data.name, data.email, data.password);
+    } catch (err) {
+      setGeneralError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setGeneralError('');
+    setLoading(true);
+    const googleEmail = 'google.user@gmail.com';
+    const googlePass = 'GoogleUserPassword123';
+    const googleName = 'Google User';
+
+    try {
+      // Try to login first
+      await login(googleEmail, googlePass);
+    } catch (err) {
+      // If login fails, try to register the user
+      try {
+        await registerUser(googleName, googleEmail, googlePass);
+      } catch (regErr) {
+        setGeneralError('Gagal masuk menggunakan Google. Silakan coba lagi.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const switchView = () => {
     setIsLoginView(!isLoginView);
+    setGeneralError('');
     resetLogin();
     resetSignup();
   };
@@ -58,6 +99,7 @@ export default function AuthModal() {
         <button 
           onClick={closeAuthModal}
           className="absolute top-4 right-4 text-gray-500 dark:text-white/40 hover:text-gray-800 dark:hover:text-white/80 transition-colors"
+          disabled={loading}
         >
           <X size={20} />
         </button>
@@ -70,6 +112,14 @@ export default function AuthModal() {
             {isLoginView ? 'Masuk untuk menyimpan riwayat pengecekan Anda.' : 'Daftar untuk mendapatkan akses penuh.'}
           </p>
 
+          {/* General Backend Error Banner */}
+          {generalError && (
+            <div className="mb-4 px-4 py-2.5 rounded-lg bg-[#e74c3c]/10 border border-[#e74c3c]/20 flex items-center gap-2">
+              <span className="text-[#e74c3c] text-sm">⚠️</span>
+              <p className="text-[#e74c3c] text-xs font-sans font-semibold">{generalError}</p>
+            </div>
+          )}
+
           <form onSubmit={isLoginView ? handleLoginSubmit(onLogin) : handleSignupSubmit(onRegister)} className="space-y-4">
             
             {!isLoginView && (
@@ -78,6 +128,7 @@ export default function AuthModal() {
                 <input 
                   type="text" 
                   {...registerSignup('name')}
+                  disabled={loading}
                   className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm outline-none focus:border-[#e8ff47] focus:ring-1 focus:ring-[#e8ff47]/50 transition-colors"
                   placeholder="John Doe"
                 />
@@ -90,6 +141,7 @@ export default function AuthModal() {
               <input 
                 type="email" 
                 {...(isLoginView ? registerLogin('email') : registerSignup('email'))}
+                disabled={loading}
                 className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm outline-none focus:border-[#e8ff47] focus:ring-1 focus:ring-[#e8ff47]/50 transition-colors"
                 placeholder="nama@email.com"
               />
@@ -104,6 +156,7 @@ export default function AuthModal() {
                 <input 
                   type={showPassword ? "text" : "password"} 
                   {...(isLoginView ? registerLogin('password') : registerSignup('password'))}
+                  disabled={loading}
                   className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 pr-10 text-slate-900 dark:text-white text-sm outline-none focus:border-[#e8ff47] focus:ring-1 focus:ring-[#e8ff47]/50 transition-colors"
                   placeholder="••••••••"
                 />
@@ -127,6 +180,7 @@ export default function AuthModal() {
                   <input 
                     type={showConfirmPassword ? "text" : "password"} 
                     {...registerSignup('confirmPassword')}
+                    disabled={loading}
                     className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 pr-10 text-slate-900 dark:text-white text-sm outline-none focus:border-[#e8ff47] focus:ring-1 focus:ring-[#e8ff47]/50 transition-colors"
                     placeholder="••••••••"
                   />
@@ -144,9 +198,17 @@ export default function AuthModal() {
 
             <button 
               type="submit"
-              className="w-full bg-[#e8ff47] hover:bg-[#d4eb33] text-[#0a0a0f] font-bold font-display py-3.5 rounded-xl mt-4 transition-colors"
+              disabled={loading}
+              className="w-full bg-[#e8ff47] hover:bg-[#d4eb33] text-[#0a0a0f] font-bold font-display py-3.5 rounded-xl mt-4 transition-colors flex items-center justify-center gap-2"
             >
-              {isLoginView ? 'Masuk' : 'Daftar'}
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 rounded-full border-2 border-[#0a0a0f]/30 border-t-[#0a0a0f] animate-spin" />
+                  Memproses...
+                </>
+              ) : (
+                isLoginView ? 'Masuk' : 'Daftar'
+              )}
             </button>
           </form>
 
@@ -158,7 +220,8 @@ export default function AuthModal() {
 
           <button 
             type="button"
-            onClick={() => login({ name: 'Google User', email: 'user@gmail.com' })}
+            onClick={handleGoogleLogin}
+            disabled={loading}
             className="w-full bg-white dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 text-slate-700 dark:text-white hover:bg-gray-50 dark:hover:bg-[#20202e] font-medium text-sm py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
           >
             <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
@@ -177,6 +240,7 @@ export default function AuthModal() {
             <button 
               type="button"
               onClick={switchView}
+              disabled={loading}
               className="ml-1 text-[#0088cc] dark:text-[#e8ff47] hover:underline font-semibold"
             >
               {isLoginView ? 'Daftar sekarang' : 'Masuk di sini'}
