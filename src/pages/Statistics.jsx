@@ -50,7 +50,7 @@ function drawDonut(safe, phishing, isDark) {
 }
 
 export default function Statistics() {
-  const { totalCount, safeCount, phishingCount, safePercent } = useHistory();
+  const { totalCount, safeCount, phishingCount } = useHistory();
   const { isDark } = useTheme();
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function Statistics() {
     { label: "Total SMS dicek", value: totalCount, color: "text-[#e8ff47]" },
     { label: "Pesan aman", value: safeCount, color: "text-[#2ecc71]" },
     { label: "Pesan phishing", value: phishingCount, color: "text-[#e74c3c]" },
-    { label: "Tingkat keamanan", value: totalCount ? `${safePercent}%` : "—", color: "text-[#47c8ff]" },
+    { label: "Tingkat keamanan", value: totalCount ? `${((safeCount / totalCount) * 100).toFixed(1)}%` : "—", color: "text-[#47c8ff]" },
   ];
 
   return (

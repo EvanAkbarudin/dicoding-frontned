@@ -13,17 +13,23 @@ export async function checkMessage(messageText) {
     return normalizeResponse(response.data);
   } catch (error) {
     console.error("FULL ERROR:", error);
-
     if (error.response) {
       const status = error.response.status;
+
+      console.log("FULL ERROR RESPONSE:", error.response.data);
+
       const message = error.response.data?.error || error.response.data?.detail || "Unknown error";
 
-      console.log("STATUS:", status);
-      console.log("MESSAGE:", message);
-      console.log("FULL RESPONSE:", error.response.data);
-
-      throw new Error(`Server error: ${status} — ${message}`);
+      throw new Error(`Server error: ${status} — ${message}`, { cause: error });
     }
+
+    if (error.request) {
+      throw new Error("Network error: Tidak dapat terhubung ke server.", { cause: error });
+    }
+
+    throw new Error(`Error: ${error.message}`, {
+      cause: error,
+    });
   }
 
   function normalizeResponse(raw) {
