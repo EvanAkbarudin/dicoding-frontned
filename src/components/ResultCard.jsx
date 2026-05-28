@@ -1,6 +1,10 @@
 export default function ResultCard({ result, onBack }) {
   const isSafe = result.status === "safe";
 
+  const phishingScore = result.phishingScore !== undefined && result.phishingScore !== null
+    ? Math.round(result.phishingScore)
+    : (isSafe ? 15 : 85);
+
   const tips = isSafe
     ? ["Pesan ini tampak aman, namun tetap waspada terhadap link mencurigakan.", "Jangan pernah memberikan PIN, OTP, atau password kepada siapapun.", "Konfirmasi kebenaran pesan langsung kepada pengirim resmi."]
     : ["Jangan klik link apapun yang ada di pesan ini.", "Jangan berikan data pribadi seperti nomor KTP, rekening, atau OTP.", "Laporkan pesan ini ke pihak berwenang atau operator seluler Anda.", "Blokir nomor pengirim pesan tersebut."];
@@ -59,12 +63,13 @@ export default function ResultCard({ result, onBack }) {
         <div className="mb-6">
           <div className="flex justify-between text-xs text-gray-500 dark:text-white/40 font-sans mb-2 transition-colors duration-300">
             <span>Skor Risiko</span>
-            <span className={`font-medium ${isSafe ? "text-[#2ecc71]" : "text-[#e74c3c]"}`}>{isSafe ? "RENDAH — 15/100" : "TINGGI — 85/100"}</span>
+            <span className={`font-medium ${isSafe ? "text-[#2ecc71]" : "text-[#e74c3c]"}`}>{isSafe ? `RENDAH — ${phishingScore}/100` : `TINGGI — ${phishingScore}/100`}</span>
           </div>
           <div className="h-2 rounded-full bg-gray-100 dark:bg-[#1a1a26] overflow-hidden transition-colors duration-300">
             <div
               className={`h-full rounded-full transition-all duration-1000
-                ${isSafe ? "w-[15%] bg-linear-to-r from-[#27ae60] to-[#2ecc71]" : "w-[85%] bg-linear-to-r from-[#f39c12] to-[#e74c3c]"}`}
+                ${isSafe ? "bg-linear-to-r from-[#27ae60] to-[#2ecc71]" : "bg-linear-to-r from-[#f39c12] to-[#e74c3c]"}`}
+              style={{ width: `${phishingScore}%` }}
             />
           </div>
         </div>
@@ -73,7 +78,7 @@ export default function ResultCard({ result, onBack }) {
         <div className="mb-6">
           <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 dark:text-white/40 font-sans mb-3 transition-colors duration-300">Alasan Analisis</p>
           <div className="bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-5 py-4 transition-colors duration-300">
-            <p className="text-sm text-slate-700 dark:text-white/80 leading-relaxed font-sans transition-colors duration-300">{result.reason}</p>
+            <p className="text-sm text-slate-700 dark:text-white/80 leading-relaxed font-sans transition-colors duration-300" style={{ whiteSpace: "pre-line" }}>{result.reason}</p>
           </div>
         </div>
 
