@@ -1,39 +1,38 @@
-import { useState } from 'react'
-import { useHistory } from '../context/HistoryContext'
-import { useAuth } from '../context/AuthContext'
-import { checkMessage } from '../data/api'
+import { useState } from "react";
+import { useHistory } from "../context/HistoryContext";
+import { useAuth } from "../context/AuthContext";
+import { checkMessage } from "../data/api";
 
 export default function TextInput({ onResult }) {
-  const [text, setText] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const { addEntry } = useHistory()
-  const { user, openAuthModal } = useAuth()
+  const [text, setText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { addEntry } = useHistory();
+  const { user, openAuthModal } = useAuth();
 
   async function handleCheck() {
     if (!user) {
-      openAuthModal()
-      return
+      openAuthModal();
+      return;
     }
 
     if (!text.trim()) {
-      setError('Masukkan pesan SMS terlebih dahulu.')
-      return
+      setError("Masukkan pesan SMS terlebih dahulu.");
+      return;
     }
-    setError('')
-    setLoading(true)
+
+    setError("");
+    setLoading(true);
 
     try {
-      const data = await checkMessage(text)
-      addEntry(data)
-      onResult(data)
+      const data = await checkMessage(text);
+      addEntry(data);
+      onResult(data);
     } catch (err) {
-      console.error(err)
-      setError(
-        'Gagal terhubung ke server. Periksa koneksi internet kamu atau coba beberapa saat lagi.'
-      )
+      console.error(err);
+      setError("Gagal terhubung ke server. Periksa koneksi internet kamu atau coba beberapa saat lagi.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -41,7 +40,7 @@ export default function TextInput({ onResult }) {
     <div className="max-w-4xl mx-auto mb-20 px-10">
       <div className="relative bg-white dark:bg-[#12121a] border border-gray-200 dark:border-white/10 rounded-2xl p-8 shadow-sm dark:shadow-none overflow-hidden transition-colors duration-300">
         {/* Top gradient line */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-linera-to-r from-transparent  via-[#b8a800]/60 dark:via-[#e8ff47]/40 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#b8a800] dark:via-[#e8ff47] to-transparent" />
 
         {/* Label */}
         <p className="text-xs font-semibold tracking-widest uppercase text-gray-500 dark:text-white/40 mb-4 font-sans transition-colors duration-300">Isi Pesan SMS</p>
@@ -53,9 +52,9 @@ export default function TextInput({ onResult }) {
           rows={6}
           placeholder={`Paste isi SMS yang ingin dicek di sini...\n\nContoh: "Selamat! Anda terpilih mendapatkan hadiah Rp 50.000.000."\n\nSemakin lengkap teks SMS, semakin akurat hasil analisisnya.`}
           className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-6 py-5
-                     text-slate-900 dark:text-white/90 text-base font-normal font-sans leading-relaxed
+                     text-slate-900 dark:text-black text-base font-normal font-sans leading-relaxed
                      placeholder-gray-400 dark:placeholder-white/40 outline-none resize-y min-h-40
-                     focus:border-[#b8a800] dark:focus:border-[#e8ff47]/50 focus:ring-2 focus:ring-[#b8a800]/30 dark:focus:ring-transparent transition-all duration-300"
+                     focus:border-[#b8a800] dark:focus:border-[#e8ff47] focus:ring-2 focus:ring-[#b8a800]/30 dark:focus:ring-[#e8ff47]/30 transition-all duration-300"
         />
 
         {/* Error */}
@@ -66,27 +65,29 @@ export default function TextInput({ onResult }) {
           </div>
         )}
 
-        {/* Footer row */}
+        {/* Footer */}
         <div className="flex items-center justify-between mt-4">
-          <span className="text-xs text-gray-500 dark:text-white/40 font-sans transition-colors duration-300">💡 Tips: sertakan seluruh isi SMS termasuk link dan nomor pengirim</span>
+          <span className="text-xs text-gray-500 dark:text-white/40 font-sans">💡 Tips: sertakan seluruh isi SMS termasuk link dan nomor pengirim</span>
 
           <button
             onClick={handleCheck}
             disabled={loading}
-            className={`flex items-center gap-2.5 px-7 py-3.5 rounded-xl
-                        font-display font-bold text-[#0a0a0f] text-sm
-                        transition-all duration-200
-                        ${loading ? "bg-[#e8ff47]/50 cursor-not-allowed" : "bg-[#e8ff47] hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(232,255,71,0.2)] active:translate-y-0"}`}
+            className={`flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-display font-bold text-white dark:text-black text-sm transition-all duration-200
+            ${
+              loading
+                ? "bg-[#b8a800]/50 dark:bg-[#e8ff47]/50 cursor-not-allowed"
+                : "bg-[#b8a800] dark:bg-[#e8ff47] hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(184,168,0,0.2)] dark:hover:shadow-[0_12px_30px_rgba(232,255,71,0.2)] active:translate-y-0"
+            }`}
           >
             {loading ? (
               <>
-                <span className="w-4 h-4 rounded-full border-2 border-[#0a0a0f]/30 border-t-[#0a0a0f] animate-spin" />
+                <span className="w-4 h-4 rounded-full border-2 border-white/30 dark:border-black/30 border-t-white dark:border-t-black animate-spin" />
                 Menganalisis...
               </>
             ) : (
               <>
                 Cek Pesan
-                <span className="w-5 h-5 rounded-full bg-[#0a0a0f]/20 flex items-center justify-center text-[10px]">→</span>
+                <span className="w-5 h-5 rounded-full bg-white/20 dark:bg-black/20 flex items-center justify-center text-[10px]">→</span>
               </>
             )}
           </button>

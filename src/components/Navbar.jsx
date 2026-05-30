@@ -8,7 +8,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
-  const { user, openAuthModal, logout, login } = useAuth();
+  const { user, openAuthModal, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

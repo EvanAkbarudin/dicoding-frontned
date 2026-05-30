@@ -1,9 +1,5 @@
-// generatePDF.js — Safe Message | Simple & Professional Report Design
-// Optimized for users 40+ years old: clean, readable, and print-friendly
+import jsPDF from "jspdf";
 
-import jsPDF from 'jspdf';
-
-// ── Simple Color Palette ──────────────────────────────────────────────────────
 const COLORS = {
   white: [255, 255, 255],
   black: [0, 0, 0],
@@ -17,43 +13,15 @@ const COLORS = {
   dangerBg: [255, 245, 245],
 };
 
-// ── Helper Functions ──────────────────────────────────────────────────────────
-
-function formatDate(iso) {
-  return new Date(iso).toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+// ── FIX: hanya hitung tinggi, tidak render
+function calculateTextHeight(doc, text, maxWidth, lineHeight = 7) {
+  const lines = doc.splitTextToSize(String(text || ""), maxWidth);
+  return lines.length * lineHeight;
 }
 
-function setColor(doc, rgb, type = 'text') {
-  if (type === 'text') doc.setTextColor(...rgb);
-  if (type === 'fill') doc.setFillColor(...rgb);
-  if (type === 'draw') doc.setDrawColor(...rgb);
-}
-
-function drawLine(doc, x1, y1, x2, y2, color = COLORS.lightGray, width = 0.5) {
-  doc.setLineWidth(width);
-  setColor(doc, color, 'draw');
-  doc.line(x1, y1, x2, y2);
-}
-
-function drawBox(doc, x, y, w, h, fillColor, borderColor = null) {
-  setColor(doc, fillColor, 'fill');
-  doc.rect(x, y, w, h, 'F');
-
-  if (borderColor) {
-    setColor(doc, borderColor, 'draw');
-    doc.setLineWidth(0.5);
-    doc.rect(x, y, w, h, 'S');
-  }
-}
-
-function wrapText(doc, text, x, y, maxWidth, lineHeight = 7) {
-  const lines = doc.splitTextToSize(String(text || ''), maxWidth);
+// ── FIX: render text sekali saja (NO DUPLICATE)
+function drawText(doc, text, x, y, maxWidth, lineHeight = 7) {
+  const lines = doc.splitTextToSize(String(text || ""), maxWidth);
 
   lines.forEach((line) => {
     doc.text(line, x, y);
@@ -63,319 +31,97 @@ function wrapText(doc, text, x, y, maxWidth, lineHeight = 7) {
   return y;
 }
 
-// Auto page break helper
-function ensurePageSpace(doc, currentY, neededSpace, margin = 20) {
-  const pageHeight = doc.internal.pageSize.getHeight();
+// ── FINAL AUTO BOX (SAFE)
+function drawAutoBox(doc, x, y, w, text, padding, fillColor, borderColor) {
+  const lineHeight = 7;
 
-  if (currentY + neededSpace > pageHeight - 30) {
-    doc.addPage();
-    return margin;
+  const textHeight = calculateTextHeight(doc, text, w - padding * 2, lineHeight);
+
+  const boxHeight = textHeight + padding * 2;
+
+  // BOX
+  doc.setFillColor(...fillColor);
+  doc.rect(x, y, w, boxHeight, "F");
+
+  if (borderColor) {
+    doc.setDrawColor(...borderColor);
+    doc.rect(x, y, w, boxHeight, "S");
   }
 
-  return currentY;
+  // TEXT (ONLY ONCE)
+  doc.setTextColor(0);
+
+  drawText(doc, text, x + padding, y + padding, w - padding * 2, lineHeight);
+
+  return y + boxHeight;
 }
 
-// ── Main Export Function ──────────────────────────────────────────────────────
-
 export function generateSinglePDF(item) {
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
 
   const W = 210;
-  const H = 297;
   const M = 20;
   const CW = W - M * 2;
 
-  const isSafe = item.status === 'safe';
-
+  const isSafe = item.status === "safe";
   const statusColor = isSafe ? COLORS.safe : COLORS.danger;
-
-  const statusText = isSafe
-    ? 'PESAN AMAN'
-    : 'PESAN BERBAHAYA';
-
-  const statusIcon = isSafe ? '✓' : '✗';
-
-  const riskLevel = isSafe ? 'RENDAH' : 'TINGGI';
 
   let y = M;
 
-  // ── HEADER ────────────────────────────────────────────────────────────────
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
-  setColor(doc, COLORS.black);
-
-  doc.text('Safe Message', M, y);
-
-  y += 7;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-
-  setColor(doc, COLORS.mediumGray);
-
-  doc.text('Laporan Analisis Deteksi Phishing SMS', M, y);
-
-  y += 12;
-
-  drawLine(doc, M, y, W - M, y, COLORS.lightGray, 1);
-
-  y += 12;
-
-  // ── STATUS SECTION ────────────────────────────────────────────────────────
-
-  const statusBoxH = 26;
-
-  drawBox(
-    doc,
-    M,
-    y,
-    CW,
-    statusBoxH,
-    COLORS.veryLightGray,
-    statusColor
-  );
-
-  // Status circle
-  setColor(doc, statusColor, 'fill');
-
-  const iconCircleX = M + 12;
-  const iconCircleY = y + statusBoxH / 2;
-
-  doc.circle(iconCircleX, iconCircleY, 8, 'F');
-
-  // Icon centered
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-
-  setColor(doc, COLORS.white);
-
-  doc.text(statusIcon, iconCircleX, iconCircleY + 3, {
-    align: 'center',
-  });
-
-  // Status text
-  doc.setFont('helvetica', 'bold');
+  // HEADER
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
+  doc.text("Safe Message", M, y);
 
-  setColor(doc, statusColor);
+  y += 10;
 
-  doc.text(statusText, M + 28, y + statusBoxH / 2 + 2);
-
-  y += statusBoxH + 14;
-
-  // ── INFORMATION SECTION ───────────────────────────────────────────────────
-
-  y = ensurePageSpace(doc, y, 50);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-
-  setColor(doc, COLORS.black);
-
-  doc.text('INFORMASI LAPORAN', M, y);
-
-  y += 9;
-
-  const infoData = [
-    ['Tanggal Pemeriksaan', formatDate(item.timestamp)],
-    ['Nomor ID Laporan', `SM-${item.id}`],
-    ['Status Hasil', statusText],
-    ['Tingkat Risiko', riskLevel],
-  ];
-
-  doc.setFont('helvetica', 'normal');
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
+  doc.setTextColor(...COLORS.mediumGray);
+  doc.text("Laporan Analisis SMS", M, y);
 
-  infoData.forEach(([label, value]) => {
-    setColor(doc, COLORS.mediumGray);
+  y += 12;
 
-    doc.text(label, M, y);
+  // STATUS BOX
+  doc.setFillColor(...COLORS.veryLightGray);
+  doc.rect(M, y, CW, 22, "F");
 
-    if (label === 'Tingkat Risiko') {
-      setColor(
-        doc,
-        riskLevel === 'RENDAH'
-          ? COLORS.safe
-          : COLORS.danger
-      );
-    } else {
-      setColor(doc, COLORS.black);
-    }
+  doc.setFillColor(...statusColor);
+  doc.circle(M + 10, y + 11, 6, "F");
 
-    doc.text(': ' + value, M + 55, y);
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(10);
+  doc.text(isSafe ? "✓" : "✗", M + 10, y + 13, { align: "center" });
 
-    y += 8;
-  });
+  doc.setTextColor(...statusColor);
+  doc.setFontSize(14);
+  doc.text(isSafe ? "PESAN AMAN" : "PESAN BERBAHAYA", M + 25, y + 13);
 
-  y += 8;
+  y += 30;
 
-  // ── MESSAGE SECTION ───────────────────────────────────────────────────────
-
-  y = ensurePageSpace(doc, y, 80);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-
-  setColor(doc, COLORS.black);
-
-  doc.text('ISI PESAN SMS', M, y);
-
-  y += 9;
-
-  const messagePadding = 8;
-
-  const messageStartY = y;
-
-  doc.setFont('helvetica', 'normal');
+  // MESSAGE
   doc.setFontSize(11);
+  y = drawAutoBox(doc, M, y, CW, item.message, 8, isSafe ? COLORS.safeBg : COLORS.dangerBg, statusColor);
 
-  setColor(doc, COLORS.black);
+  y += 10;
 
-  const messageEndY = wrapText(
-    doc,
-    item.message,
-    M + messagePadding,
-    y + messagePadding,
-    CW - messagePadding * 2,
-    7
-  );
-
-  const messageBoxHeight =
-    messageEndY - messageStartY + messagePadding;
-
-  drawBox(
-    doc,
-    M,
-    messageStartY,
-    CW,
-    messageBoxHeight,
-    isSafe ? COLORS.safeBg : COLORS.dangerBg,
-    statusColor
-  );
-
-  // redraw text
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(11);
-
-  setColor(doc, COLORS.black);
-
-  wrapText(
-    doc,
-    item.message,
-    M + messagePadding,
-    messageStartY + messagePadding,
-    CW - messagePadding * 2,
-    7
-  );
-
-  y = messageEndY + messagePadding + 12;
-
-  // ── ANALYSIS SECTION ──────────────────────────────────────────────────────
-
-  y = ensurePageSpace(doc, y, 70);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-
-  setColor(doc, COLORS.black);
-
-  doc.text('HASIL ANALISIS', M, y);
-
-  y += 9;
-
-  const analysisPadding = 8;
-
-  const analysisStartY = y;
-
-  doc.setFont('helvetica', 'normal');
+  // ANALYSIS
   doc.setFontSize(10);
+  doc.setTextColor(...COLORS.darkGray);
 
-  setColor(doc, COLORS.darkGray);
+  y = drawAutoBox(doc, M, y, CW, item.reason, 8, COLORS.white, COLORS.lightGray);
 
-  const analysisEndY = wrapText(
-    doc,
-    item.reason,
-    M + analysisPadding,
-    y + analysisPadding,
-    CW - analysisPadding * 2,
-    7
-  );
+  // FOOTER
+  const footerY = 285;
 
-  const analysisBoxHeight =
-    analysisEndY - analysisStartY + analysisPadding;
+  doc.setDrawColor(...COLORS.lightGray);
+  doc.line(M, footerY, W - M, footerY);
 
-  drawBox(
-    doc,
-    M,
-    analysisStartY,
-    CW,
-    analysisBoxHeight,
-    COLORS.white,
-    COLORS.lightGray
-  );
-
-  // redraw text
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-
-  setColor(doc, COLORS.darkGray);
-
-  wrapText(
-    doc,
-    item.reason,
-    M + analysisPadding,
-    analysisStartY + analysisPadding,
-    CW - analysisPadding * 2,
-    7
-  );
-
-  y = analysisEndY + analysisPadding + 14;
-
-
-  // ── FOOTER ────────────────────────────────────────────────────────────────
-
-  const footerY = H - 25;
-
-  drawLine(doc, M, footerY, W - M, footerY);
-
-  doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
+  doc.setTextColor(...COLORS.mediumGray);
 
-  setColor(doc, COLORS.mediumGray);
+  doc.text("Safe Message Report", M, footerY + 6);
+  doc.text(`ID: SM-${item.id}`, W - M, footerY + 6, { align: "right" });
 
-  doc.text(
-    'Safe Message — Sistem Deteksi Phishing SMS',
-    M,
-    footerY + 6
-  );
-
-  doc.text(
-    'Laporan ini dibuat secara otomatis dan bersifat informatif.',
-    M,
-    footerY + 11
-  );
-
-  doc.text(
-    'Jangan gunakan laporan ini sebagai satu-satunya dasar keputusan keamanan.',
-    M,
-    footerY + 16
-  );
-
-  doc.text(
-    `Halaman 1 dari 1 | Dicetak: ${new Date().toLocaleDateString(
-      'id-ID'
-    )}`,
-    W - M,
-    footerY + 6,
-    {
-      align: 'right',
-    }
-  );
-
-  // ── SAVE ──────────────────────────────────────────────────────────────────
-
-  const filename = `laporan-smishing-${item.id}.pdf`;
-
-  doc.save(filename);
+  doc.save(`laporan-${item.id}.pdf`);
 }
