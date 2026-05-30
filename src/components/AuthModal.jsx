@@ -216,12 +216,12 @@ export default function AuthModal() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full font-bold font-display py-3.5 rounded-xl mt-4 flex items-center justify-center gap-2 text-white dark:text-black transition-colors
-              ${loading ? "bg-[#b8a800]" : "dark:bg-[#e8ff47] hover:bg-[#a89500] dark:hover:bg-[#e8ff47]"}`}
+              className={`w-full font-bold font-display py-3.5 rounded-xl mt-4 flex items-center justify-center gap-2 transition-colors
+    ${loading ? "cursor-not-allowed opacity-70 bg-[#b8a800] dark:bg-[#e8ff47] text-white dark:text-black" : "bg-[#b8a800] dark:bg-[#e8ff47] text-white dark:text-black hover:opacity-90"}`}
             >
               {loading ? (
                 <>
-                  <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  <span className="w-4 h-4 rounded-full border-2 border-white/30 dark:border-black/30 border-t-white dark:border-t-black animate-spin" />
                   Memproses...
                 </>
               ) : isLoginView ? (

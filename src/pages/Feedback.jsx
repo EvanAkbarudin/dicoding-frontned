@@ -1,93 +1,89 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { ChevronDown, ExternalLink } from 'lucide-react';
-import api from '../lib/axios';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { ChevronDown, ExternalLink } from "lucide-react";
+import api from "../lib/axios";
 
 const feedbackSchema = z.object({
-  category: z.string().min(1, 'Pilih kategori masukan'),
-  message: z.string().min(10, 'Detail masukan minimal 10 karakter'),
-  email: z.string().email('Email tidak valid').optional().or(z.literal('')),
+  category: z.string().min(1, "Pilih kategori masukan"),
+  message: z.string().min(10, "Detail masukan minimal 10 karakter"),
+  email: z.string().email("Email tidak valid").optional().or(z.literal("")),
 });
 
-const CATEGORIES = [
-  "Saran Fitur",
-  "Bug / Error",
-  "Kendala Penggunaan",
-  "Kritik Tampilan",
-  "Permintaan Fitur Baru",
-  "Laporan Phishing",
-  "Pengalaman Pengguna",
-  "Keamanan Aplikasi",
-  "Performa Aplikasi",
-  "Lainnya"
-];
+const CATEGORIES = ["Saran Fitur", "Bug / Error", "Kendala Penggunaan", "Kritik Tampilan", "Permintaan Fitur Baru", "Laporan Phishing", "Pengalaman Pengguna", "Keamanan Aplikasi", "Performa Aplikasi", "Lainnya"];
 
 export default function Feedback() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
     resolver: zodResolver(feedbackSchema),
   });
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      const response = await api.post('/api/v1/feedbacks', data);
-      if (response.data?.status === 'success') {
+      const response = await api.post("/api/v1/feedbacks", data);
+      if (response.data?.status === "success") {
         setIsSuccess(true);
         reset();
         setTimeout(() => setIsSuccess(false), 5000);
       }
     } catch (err) {
-      console.error('Failed to submit feedback:', err);
-      alert(err.response?.data?.error || 'Gagal mengirimkan masukan. Silakan coba lagi.');
+      console.error("Failed to submit feedback:", err);
+      alert(err.response?.data?.error || "Gagal mengirimkan masukan. Silakan coba lagi.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const primaryLight = "bg-[#b8a800] text-white hover:bg-[#a89500]";
+  const primaryDark = "dark:bg-[#e8ff47] dark:text-black dark:hover:bg-[#d4eb33]";
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20 mb-20">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-        {/* Left Column - Feedback Form */}
-        <div className="lg:col-span-8" data-aos="fade-up">
-          <div className="bg-white dark:bg-[#12121a] border border-gray-200 dark:border-white/10 rounded-3xl p-8 lg:p-10 shadow-sm dark:shadow-none transition-colors duration-300">
+        {/* LEFT */}
+        <div className="lg:col-span-8">
+          <div className="bg-white dark:bg-[#12121a] border border-gray-200 dark:border-white/10 rounded-3xl p-8 lg:p-10">
+            {/* Header */}
             <div className="mb-10">
-              <div
-                className="inline-flex items-center gap-2 border border-gray-200 dark:border-white/20
-                        text-slate-500 dark:text-white/50 text-[10px] font-semibold tracking-[0.15em] uppercase
-                        px-4 py-1.5 rounded-full mb-6 transition-colors duration-300"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#b8a800] dark:bg-[#e8ff47] inline-block" />
+              <div className="inline-flex items-center gap-2 border border-gray-200 dark:border-white/20 text-slate-500 dark:text-white/50 text-[10px] font-semibold uppercase tracking-[0.15em] px-4 py-1.5 rounded-full mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#b8a800] dark:bg-[#e8ff47]" />
                 Suara Pengguna
               </div>
-              <h1 className="font-display font-extrabold text-3xl md:text-4xl text-slate-900 dark:text-white mb-4 transition-colors duration-300">Beri Masukan Anda</h1>
-              <p className="text-base text-slate-500 dark:text-white/60 font-sans leading-relaxed max-w-2xl transition-colors duration-300">
-                Masukan Anda sangat berharga bagi kami. Setiap saran membantu kami membangun ekosistem digital yang lebih aman bagi seluruh masyarakat Indonesia.
-              </p>
+
+              <h1 className="font-display font-extrabold text-3xl md:text-4xl text-slate-900 dark:text-white mb-4">Beri Masukan Anda</h1>
+
+              <p className="text-base text-slate-500 dark:text-white/60 leading-relaxed max-w-2xl">Masukan Anda sangat berharga bagi kami.</p>
             </div>
 
+            {/* SUCCESS */}
             {isSuccess ? (
-              <div className="bg-[#2ecc71]/10 border border-[#2ecc71]/20 rounded-2xl p-8 text-center" data-aos="fade-up">
-                <div className="w-16 h-16 rounded-full bg-[#2ecc71]/20 flex items-center justify-center text-3xl mx-auto mb-4">✅</div>
-                <h3 className="font-display font-bold text-xl text-[#2ecc71] mb-2">Terima Kasih!</h3>
-                <p className="text-sm text-slate-600 dark:text-white/60 font-sans">Masukan Anda telah berhasil dikirim. Kami akan meninjaunya dengan saksama.</p>
-                <button onClick={() => setIsSuccess(false)} className="mt-6 px-6 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 text-slate-700 dark:text-white text-sm font-medium hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
-                  Kirim Masukan Lainnya
+              <div className="bg-[#2ecc71]/10 border border-[#2ecc71]/20 rounded-2xl p-8 text-center">
+                <div className="w-16 h-16 rounded-full bg-[#2ecc71]/20 flex items-center justify-center mx-auto mb-4">✅</div>
+                <h3 className="font-bold text-xl text-[#2ecc71] mb-2">Terima Kasih!</h3>
+                <p className="text-sm text-slate-600 dark:text-white/60">Masukan berhasil dikirim.</p>
+                <button onClick={() => setIsSuccess(false)} className="mt-6 px-6 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 text-sm">
+                  Kirim Lagi
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                {/* Category Dropdown */}
+                {/* CATEGORY */}
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/40 mb-2 font-sans transition-colors duration-300">Kategori Masukan</label>
+                  <label className="text-xs font-semibold uppercase text-slate-500 dark:text-white/40 mb-2 block">Kategori Masukan</label>
+
                   <div className="relative">
                     <select
                       {...register("category")}
-                      className="w-full appearance-none bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-5 py-4 text-slate-900 dark:text-white text-base font-sans outline-none focus:border-[#e8ff47] focus:ring-1 focus:ring-[#e8ff47]/50 transition-colors cursor-pointer"
+                      className="w-full appearance-none bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-5 py-4 text-slate-900 dark:text-white focus:ring-1 focus:ring-[#b8a800]/30 dark:focus:ring-[#e8ff47]/30 outline-none"
                     >
                       <option value="">Pilih kategori...</option>
                       {CATEGORIES.map((cat) => (
@@ -96,103 +92,75 @@ export default function Feedback() {
                         </option>
                       ))}
                     </select>
-                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 dark:text-white/40">
-                      <ChevronDown size={20} />
-                    </div>
+
+                    <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40" />
                   </div>
-                  {errors.category && <p className="text-[#e74c3c] text-xs mt-1.5 font-sans">{errors.category.message}</p>}
+
+                  {errors.category && <p className="text-[#e74c3c] text-xs mt-1">{errors.category.message}</p>}
                 </div>
 
-                {/* Detail Textarea */}
+                {/* MESSAGE */}
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/40 mb-2 font-sans transition-colors duration-300">Detail Masukan</label>
+                  <label className="text-xs font-semibold uppercase text-slate-500 dark:text-white/40 mb-2 block">Detail Masukan</label>
+
                   <textarea
                     {...register("message")}
                     rows={6}
-                    placeholder="Ceritakan pengalaman atau saran Anda..."
-                    className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-5 py-4 text-slate-900 dark:text-white text-base font-sans leading-relaxed outline-none focus:border-[#e8ff47] focus:ring-1 focus:ring-[#e8ff47]/50 transition-colors resize-y min-h-[160px] placeholder-gray-400 dark:placeholder-white/30"
+                    className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-5 py-4 text-slate-900 dark:text-white outline-none focus:ring-1 focus:ring-[#b8a800]/30 dark:focus:ring-[#e8ff47]/30"
                   />
-                  {errors.message && <p className="text-[#e74c3c] text-xs mt-1.5 font-sans">{errors.message.message}</p>}
+
+                  {errors.message && <p className="text-[#e74c3c] text-xs mt-1">{errors.message.message}</p>}
                 </div>
 
-                {/* Optional Email */}
+                {/* EMAIL */}
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/40 mb-2 font-sans transition-colors duration-300">
-                    Email <span className="normal-case tracking-normal opacity-70 font-normal">(Opsional)</span>
-                  </label>
+                  <label className="text-xs font-semibold uppercase text-slate-500 dark:text-white/40 mb-2 block">Email (Opsional)</label>
+
                   <input
                     type="email"
                     {...register("email")}
-                    placeholder="nama@email.com"
-                    className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-5 py-4 text-slate-900 dark:text-white text-base font-sans outline-none focus:border-[#e8ff47] focus:ring-1 focus:ring-[#e8ff47]/50 transition-colors placeholder-gray-400 dark:placeholder-white/30"
+                    className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-5 py-4 text-slate-900 dark:text-white outline-none focus:ring-1 focus:ring-[#b8a800]/30 dark:focus:ring-[#e8ff47]/30"
                   />
-                  <p className="text-xs text-gray-400 dark:text-white/30 mt-2 font-sans">Hanya digunakan untuk tindak lanjut jika diperlukan.</p>
-                  {errors.email && <p className="text-[#e74c3c] text-xs mt-1.5 font-sans">{errors.email.message}</p>}
                 </div>
 
-                {/* Submit Button */}
-                <div className="pt-4">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-display font-bold text-base transition-all duration-200 ${
-                      isSubmitting ? "bg-[#e8ff47]/50 text-[#0a0a0f]/50 cursor-not-allowed" : "bg-[#e8ff47] text-[#0a0a0f] hover:bg-[#d4eb33] hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(232,255,71,0.2)]"
-                    }`}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <span className="w-5 h-5 rounded-full border-2 border-[#0a0a0f]/30 border-t-[#0a0a0f] animate-spin" />
-                        Mengirim...
-                      </>
-                    ) : (
-                      "Kirim Masukan"
-                    )}
-                  </button>
-                </div>
+                {/* BUTTON */}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold transition-all
+                    ${isSubmitting ? "bg-[#b8a800]/50 dark:bg-[#e8ff47]/40 text-white dark:text-black cursor-not-allowed" : `${primaryLight} ${primaryDark}`}`}
+                >
+                  {isSubmitting ? "Mengirim..." : "Kirim Masukan"}
+                </button>
               </form>
             )}
           </div>
         </div>
 
-        {/* Right Column - Info Cards */}
-        <div className="lg:col-span-4 flex flex-col gap-6" data-aos="fade-up" data-aos-delay="100">
-          {/* Community Impact Card */}
-          <div className="relative rounded-3xl overflow-hidden shadow-lg border border-gray-200 dark:border-white/10 group">
-            {/* Background Image */}
-            <div className="absolute inset-0 w-full h-full">
-              <img src="/images/community_impact.png" alt="Community Impact" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/80 to-[#0a0a0f]/30" />
-            </div>
+        {/* RIGHT */}
+        <div className="lg:col-span-4 flex flex-col gap-6">
+          <div className="rounded-3xl overflow-hidden border border-gray-200 dark:border-white/10">
+            <div className="p-8 bg-linear-to-b from-black/80 to-black/40">
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center mb-6">🛡️</div>
 
-            <div className="relative p-8 h-full flex flex-col justify-end min-h-[380px]">
-              <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl mb-auto border border-white/10">🛡️</div>
+              <h2 className="text-white font-bold text-xl mb-2">Dampak Komunitas</h2>
+              <p className="text-white/70 text-sm mb-6 italic">"Masukan pengguna membantu deteksi lebih cepat"</p>
 
-              <div className="mt-8">
-                <h2 className="font-display font-bold text-2xl text-white mb-2">Dampak Komunitas</h2>
-                <p className="text-sm text-white/70 font-sans leading-relaxed mb-6 italic">"Berkat masukan pengguna, kami dapat mendeteksi modus penipuan baru dalam hitungan jam."</p>
-
-                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-5 border border-white/10 relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-[#e8ff47]" />
-                  <div className="font-display font-black text-4xl text-[#e8ff47] tracking-tight mb-1">1.200+</div>
-                  <div className="text-xs text-white/60 font-sans font-medium">Saran pengguna telah membantu akurasi deteksi phishing.</div>
-                </div>
-              </div>
+              <div className="text-[#e8ff47] font-bold text-3xl">1.200+</div>
+              <div className="text-white/60 text-xs">Saran pengguna terkumpul</div>
             </div>
           </div>
 
-          {/* Technical Issue Card */}
-          <div className="bg-white dark:bg-[#12121a] border border-gray-200 dark:border-white/10 rounded-3xl p-8 shadow-sm dark:shadow-none transition-colors duration-300">
-            <h3 className="font-display font-bold text-xl text-slate-900 dark:text-white mb-3 transition-colors duration-300">Ada Kendala Teknis?</h3>
-            <p className="text-sm text-slate-500 dark:text-white/60 font-sans leading-relaxed mb-6 transition-colors duration-300">
-              Jika Anda mengalami masalah teknis saat menggunakan aplikasi, silakan kunjungi Pusat Bantuan kami atau hubungi tim support.
-            </p>
+          <div className="bg-white dark:bg-[#12121a] border border-gray-200 dark:border-white/10 rounded-3xl p-8">
+            <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">Ada Kendala?</h3>
+
+            <p className="text-sm text-slate-500 dark:text-white/60 mb-6">Hubungi support jika ada masalah.</p>
+
             <a
-              href="mailto:support@safemessage.id"
-              className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl border-2 border-gray-200 dark:border-white/20 text-slate-700 dark:text-white font-medium text-sm font-sans hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-200 group"
+              href="mailto:evanakbarudin088@gmail.com?cc=rasenkurniawan@gmail.com,rantinthp@gmail.com,feyzahasna@gmail.com,noviadchy879@gmail.com,hafiudinbagir@gmail.com"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 dark:border-white/10 text-slate-700 dark:text-white"
             >
-              Hubungi Support
-              <ExternalLink size={16} className="text-gray-400 group-hover:text-gray-600 dark:text-white/40 dark:group-hover:text-white/80 transition-colors" />
+              Hubungi Support <ExternalLink size={16} />
             </a>
           </div>
         </div>
