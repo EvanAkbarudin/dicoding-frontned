@@ -143,16 +143,16 @@ export default function History() {
                     onClick={() => handleDownload(item)}
                     disabled={isLoading}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium font-sans
-              transition-all duration-200
-              ${
-                isLoading
-                  ? "bg-[#b8a800]/20 text-white/50 dark:bg-[#e8ff47]/20 dark:text-black/50 cursor-not-allowed"
-                  : "bg-[#b8a800]/10 text-white border border-[#b8a800]/20 hover:bg-[#b8a800]/20 hover:border-[#b8a800]/40 dark:bg-[#e8ff47]/10 dark:text-black dark:border-[#e8ff47]/20 dark:hover:bg-[#e8ff47]/20 dark:hover:border-[#e8ff47]/40 active:scale-95"
-              }`}
+    transition-all duration-200
+    ${
+      isLoading
+        ? "bg-[#b8a800]/20 text-slate-900/50 dark:bg-[#e8ff47]/20 dark:text-white/50 cursor-not-allowed"
+        : "bg-[#b8a800]/10 text-slate-900 border border-[#b8a800]/20 hover:bg-[#b8a800]/20 hover:border-[#b8a800]/40 dark:bg-[#e8ff47]/10 dark:text-white dark:border-[#e8ff47]/20 dark:hover:bg-[#e8ff47]/20 dark:hover:border-[#e8ff47]/40 active:scale-95"
+    }`}
                   >
                     {isLoading ? (
                       <>
-                        <span className="w-3 h-3 rounded-full border border-white/30 dark:border-black/30 border-t-white dark:border-t-black animate-spin" />
+                        <span className="w-3 h-3 rounded-full border border-slate-900/30 dark:border-white/30 border-t-slate-900 dark:border-t-white animate-spin" />
                         Menyiapkan...
                       </>
                     ) : (
