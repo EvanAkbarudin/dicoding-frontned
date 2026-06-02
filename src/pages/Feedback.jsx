@@ -70,7 +70,7 @@ export default function Feedback() {
                 <div className="w-16 h-16 rounded-full bg-[#2ecc71]/20 flex items-center justify-center mx-auto mb-4">✅</div>
                 <h3 className="font-bold text-xl text-[#2ecc71] mb-2">Terima Kasih!</h3>
                 <p className="text-sm text-slate-600 dark:text-white/60">Masukan berhasil dikirim.</p>
-                <button onClick={() => setIsSuccess(false)} className="mt-6 px-6 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 text-sm">
+                <button onClick={() => setIsSuccess(false)} className="mt-6 px-6 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 text-sm cursor-pointer">
                   Kirim Lagi
                 </button>
               </div>
@@ -127,7 +127,7 @@ export default function Feedback() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold transition-all
+                  className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold transition-all cursor-pointer
                     ${isSubmitting ? "bg-[#b8a800]/50 dark:bg-[#e8ff47]/40 text-white dark:text-black cursor-not-allowed" : `${primaryLight} ${primaryDark}`}`}
                 >
                   {isSubmitting ? "Mengirim..." : "Kirim Masukan"}
@@ -151,14 +151,14 @@ export default function Feedback() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#12121a] border border-gray-200 dark:border-white/10 rounded-3xl p-8">
+          <div className="bg-white dark:bg-[#12121a] border border-gray-200 dark:border-white/10 rounded-3xl p-8 ">
             <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">Ada Kendala?</h3>
 
-            <p className="text-sm text-slate-500 dark:text-white/60 mb-6">Hubungi support jika ada masalah.</p>
+            <p className="text-sm text-slate-500 dark:text-white/60 mb-6 ">Hubungi support jika ada masalah.</p>
 
             <a
               href="mailto:evanakbarudin088@gmail.com?cc=rasenkurniawan@gmail.com,rantinthp@gmail.com,feyzahasna@gmail.com,noviadchy879@gmail.com,hafiudinbagir@gmail.com"
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 dark:border-white/10 text-slate-700 dark:text-white"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 dark:border-white/10 text-slate-700 dark:text-white  hover:bg-gray-200 hover:dark:bg-[#12121a]/50"
             >
               Hubungi Support <ExternalLink size={16} />
             </a>

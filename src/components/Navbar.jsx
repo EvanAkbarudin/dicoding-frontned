@@ -50,7 +50,7 @@ export default function Navbar() {
         <button
           onClick={toggleTheme}
           title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          className={`relative flex items-center w-14 h-7 rounded-full border transition-all duration-300 focus:outline-none
+          className={`relative flex items-center w-14 h-7 rounded-full border transition-all duration-300 focus:outline-none cursor-pointer
             ${isDark ? "bg-[#1a1a2e] border-white/20" : "bg-gray-100 border-gray-300"}`}
         >
           <span className="absolute left-1.5 text-xs select-none">☀️</span>
@@ -63,7 +63,7 @@ export default function Navbar() {
 
         {user ? (
           <div className="relative hidden sm:block">
-            <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 transition-colors">
+            <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 transition-colors cursor-pointer">
               <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold uppercase">{user.name.charAt(0)}</div>
               <span className="text-sm font-medium text-slate-800 dark:text-white font-sans max-w-20 truncate hidden md:inline">{user.name}</span>
             </button>
@@ -80,7 +80,7 @@ export default function Navbar() {
                     openAuthModal();
                     setIsProfileOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
+                  className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   <Users size={16} /> Switch Account
                 </button>
@@ -89,7 +89,7 @@ export default function Navbar() {
                     logout();
                     setIsProfileOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-2 transition-colors"
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   <LogOut size={16} /> Logout
                 </button>
@@ -100,17 +100,14 @@ export default function Navbar() {
           <button
             onClick={openAuthModal}
             className="hidden sm:flex px-4 sm:px-5 py-2 rounded-lg bg-[#b8a800] dark:bg-[#e8ff47] text-white dark:text-[#0a0a0f] text-sm font-medium font-sans
-                       transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0"
+                       transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
           >
             Mulai Gratis
           </button>
         )}
 
         {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="lg:hidden p-2 text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white transition-colors"
-        >
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer">
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
@@ -126,10 +123,8 @@ export default function Navbar() {
                     navigate(l.path);
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`w-full text-left px-4 py-3 rounded-lg text-sm font-sans transition-colors duration-200
-                    ${location.pathname === l.path 
-                      ? "bg-[#b8a800]/10 dark:bg-[#e8ff47]/10 text-[#0a0a0f] dark:text-white font-medium" 
-                      : "text-gray-600 dark:text-white/60 hover:bg-gray-50 dark:hover:bg-white/5"}`}
+                  className={`w-full text-left px-4 py-3 rounded-lg text-sm font-sans transition-colors duration-200 cursor-pointer
+                    ${location.pathname === l.path ? "bg-[#b8a800]/10 dark:bg-[#e8ff47]/10 text-[#0a0a0f] dark:text-white font-medium" : "text-gray-600 dark:text-white/60 hover:bg-gray-50 dark:hover:bg-white/5"}`}
                 >
                   {l.label}
                 </button>
@@ -142,7 +137,7 @@ export default function Navbar() {
                     openAuthModal();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="w-full px-4 py-3 rounded-lg bg-[#b8a800] dark:bg-[#e8ff47] text-white dark:text-[#0a0a0f] text-sm font-medium font-sans text-center"
+                  className="w-full px-4 py-3 rounded-lg bg-[#b8a800] dark:bg-[#e8ff47] text-white dark:text-[#0a0a0f] text-sm font-medium font-sans text-center cursor-pointer"
                 >
                   Mulai Gratis
                 </button>
