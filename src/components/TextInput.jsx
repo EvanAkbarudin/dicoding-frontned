@@ -52,7 +52,7 @@ export default function TextInput({ onResult }) {
           rows={6}
           placeholder={`Paste isi SMS yang ingin dicek di sini...\n\nContoh: "Selamat! Anda terpilih mendapatkan hadiah Rp 50.000.000."\n\nSemakin lengkap teks SMS, semakin akurat hasil analisisnya.`}
           className="w-full bg-gray-50 dark:bg-[#1a1a26] border border-gray-200 dark:border-white/10 rounded-xl px-6 py-5
-                     text-slate-900 dark:text-black text-base font-normal font-sans leading-relaxed
+                     text-slate-900 dark:text-white text-base font-normal font-sans leading-relaxed
                      placeholder-gray-400 dark:placeholder-white/40 outline-none resize-y min-h-40
                      focus:border-[#b8a800] dark:focus:border-[#e8ff47] focus:ring-2 focus:ring-[#b8a800]/30 dark:focus:ring-[#e8ff47]/30 transition-all duration-300"
         />
