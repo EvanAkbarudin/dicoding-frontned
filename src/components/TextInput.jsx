@@ -72,7 +72,7 @@ export default function TextInput({ onResult }) {
           <button
             onClick={handleCheck}
             disabled={loading}
-            className={`flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-display font-bold text-white dark:text-black text-sm transition-all duration-200
+            className={`flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-display font-bold text-white dark:text-black text-sm transition-all duration-200 cursor-pointer
             ${
               loading
                 ? "bg-[#b8a800]/50 dark:bg-[#e8ff47]/50 cursor-not-allowed"
